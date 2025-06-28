@@ -17,4 +17,8 @@
     <Folder Include="Configurations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineCourse.Infrastructure\OnlineCourse.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
