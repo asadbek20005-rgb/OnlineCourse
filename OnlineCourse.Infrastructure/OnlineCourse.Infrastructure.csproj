@@ -7,10 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="Repositories\" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.17" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.17">
 			<PrivateAssets>all</PrivateAssets>
@@ -24,6 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\OnlineCourse.Application\OnlineCourse.Application.csproj" />
 	  <ProjectReference Include="..\OnlineCourse.Domain\OnlineCourse.Domain.csproj" />
 	</ItemGroup>
 

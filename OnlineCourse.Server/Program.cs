@@ -11,7 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<OnlineCourseDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString(""));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefualtConnection"));
 });
 var app = builder.Build();
 

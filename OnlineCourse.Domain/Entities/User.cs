@@ -12,12 +12,12 @@ public class User : Date
     [Key]
     public Guid Id { get; set; }
 
-    [Column("full_name")]
-    [Required]
-    [MaxLength(70)]
-    [MinLength(3)]
-    [RegularExpression("^[A-Z][a-z]+(?:\\s[A-Z][a-z]+)+$\r\n")]
-    public string FullName { get; set; } = string.Empty;
+        [Column("full_name")]
+        [Required]
+        [MaxLength(70)]
+        [MinLength(3)]
+        [RegularExpression("^[A-Z][a-z]+(?:\\s[A-Z][a-z]+)+$\r\n")]
+        public string FullName { get; set; } = string.Empty;
 
     [Column("email")]
     [Required, EmailAddress]
@@ -56,8 +56,6 @@ public class User : Date
     public Student? Student { get; set; }
 
     public ICollection<Notification>? Notification { get; set; }
-
-
 }
 
 
