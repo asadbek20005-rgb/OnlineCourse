@@ -12,5 +12,5 @@ public class CreatePaymentModel
     [Required]
     public int CourseId { get; set; }
     [Required]
-    public DateTime PaymentDate { get; set; }
+    public DateTime PaymentDate { get; set; } = DateTime.UtcNow;
 }

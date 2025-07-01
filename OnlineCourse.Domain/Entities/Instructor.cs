@@ -23,6 +23,6 @@ public class Instructor : Base
     [Column("approved")]
     public bool ApprovedByAdmin { get; set; } = false;
 
-    public ICollection<Course>? Courses { get; set; }
+    public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
 }

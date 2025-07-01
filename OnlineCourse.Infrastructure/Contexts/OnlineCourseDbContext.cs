@@ -1,13 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Domain.Entities;
+using OnlineCourse.Infrastructure.Configurations;
 
 namespace OnlineCourse.Infrastructure.Contexts;
 
 public class OnlineCourseDbContext : DbContext
 {
-    public OnlineCourseDbContext(DbContextOptions<OnlineCourseDbContext> dbContextOptions) :base(dbContextOptions)
+    public OnlineCourseDbContext(DbContextOptions<OnlineCourseDbContext> dbContextOptions) : base(dbContextOptions)
     {
-        
+
     }
 
 
@@ -29,5 +30,15 @@ public class OnlineCourseDbContext : DbContext
     public DbSet<ActivityLog> ActivityLogs { get; set; }
 
 
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseLazyLoadingProxies();
+    }
 
 }

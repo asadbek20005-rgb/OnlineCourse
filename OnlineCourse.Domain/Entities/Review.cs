@@ -36,5 +36,7 @@ public class Review : Base
     public int Rating { get; set; }
 
 
+    [Column("has_reviewed")]
+    public bool HasReviewed { get; set; } = false;
 
 }

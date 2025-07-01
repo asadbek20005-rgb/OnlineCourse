@@ -31,4 +31,7 @@ public class Payment : Base
     [Required]
     public DateTime PaymentDate { get; set; }
 
+    [Column("has_paid")]
+    public bool HasPaid { get; set; } = false;
+
 }

@@ -5,19 +5,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineCourse.Domain.Entities;
 [Table("users")]
-[Index(nameof(Email), IsUnique =true)]
+[Index(nameof(Email), IsUnique = true)]
 public class User : Date
 {
     [Column("id")]
     [Key]
     public Guid Id { get; set; }
 
-        [Column("full_name")]
-        [Required]
-        [MaxLength(70)]
-        [MinLength(3)]
-        [RegularExpression("^[A-Z][a-z]+(?:\\s[A-Z][a-z]+)+$\r\n")]
-        public string FullName { get; set; } = string.Empty;
+    [Column("full_name")]
+    [Required]
+    [MaxLength(70)]
+    [MinLength(3)]
+    [RegularExpression("^[A-Z][a-z]+(?:\\s[A-Z][a-z]+)+$\r\n")]
+    public string FullName { get; set; } = string.Empty;
 
     [Column("email")]
     [Required, EmailAddress]
@@ -56,6 +56,9 @@ public class User : Date
     public Student? Student { get; set; }
 
     public ICollection<Notification>? Notification { get; set; }
+
+    [Column("is_blocked")]
+    public bool IsBlocked { get; set; } = false; 
 }
 
 

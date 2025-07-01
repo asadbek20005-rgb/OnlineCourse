@@ -1,0 +1,21 @@
+using Microsoft.AspNetCore.Http;
+using OnlineCourse.Application.Dtos;
+using OnlineCourse.Application.Models.Course;
+using OnlineCourse.Application.Models.Lesson;
+using StatusGeneric;
+
+namespace OnlineCourse.Application.ServiceContracts;
+
+public interface ILessonService : IStatusGeneric
+{
+    Task<LessonDto?> GetByIdAsync(int lessonId);
+    Task<IEnumerable<LessonDto>> GetByCourseAsync(int courseId);
+    Task CreateAsync(CreateLessonModel model);
+    Task UpdateAsync(int lessonId, UpdateCourseModel model);
+    Task DeleteAsync(int lessonId);
+    Task<bool> ExistAsync(int lessonId);
+    Task<string> UploadVideoAsync(int lessonId, IFormFile file);
+}
+
+//Task<ResultDto> ReorderAsync(int courseId, Dictionary<int, short> lessonOrders);
+//Task<ResultDto<LessonDto>> GetNextLessonAsync(int courseId, int currentLessonOrder);

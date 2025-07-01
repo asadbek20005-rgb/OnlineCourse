@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Infrastructure.Contexts;
+using OnlineCourse.Server.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddDbContext<OnlineCourseDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefualtConnection"));
 });
+builder.Services.AddProjectServices();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

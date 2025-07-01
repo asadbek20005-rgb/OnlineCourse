@@ -20,6 +20,6 @@ public class Enrollment : Base
     public Course? Course { get; set; }
     [Column("enrolled_at")]
     [Required]
-    public DateTime EnrolledAt { get; set; }
+    public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;
 
 }

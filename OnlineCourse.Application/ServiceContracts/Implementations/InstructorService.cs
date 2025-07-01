@@ -1,0 +1,105 @@
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using OnlineCourse.Application.Dtos;
+using OnlineCourse.Application.Models.Instructor;
+using OnlineCourse.Application.RepositoryContracts;
+using OnlineCourse.Domain.Entities;
+using StatusGeneric;
+
+namespace OnlineCourse.Application.ServiceContracts.Implementations;
+
+public class InstructorService(
+    IBaseRepositroy<Instructor> instructorRepository,
+    IBaseRepositroy<User> userRepository,
+    IMapper mapper) : StatusGenericHandler, IInstructorService
+{
+    private readonly IBaseRepositroy<Instructor> _instructorRepository = instructorRepository;
+    private readonly IBaseRepositroy<User> _userRepository = userRepository;
+    private readonly IMapper _mapper = mapper;
+
+
+    public async Task ApproveAsync(int instructorId)
+    {
+        Instructor? instructor = await _instructorRepository.GetByIdAsync(instructorId);
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {instructorId} is not found");
+            return;
+        }
+
+        instructor.ApprovedByAdmin = true;
+
+        await _instructorRepository.UpdateAsync(instructor);
+        await _instructorRepository.SaveChangesAsync();
+    }
+
+    public async Task CreateInstructorAsync(CreateInstructorModel model)
+    {
+        User? user = await _userRepository.GetByIdAsync(model.UserId);
+        if (user is null)
+        {
+            AddError($"User with id: {model.UserId} is not found");
+            return;
+        }
+
+        Instructor newInstructor = _mapper.Map<Instructor>(model);
+
+        await _instructorRepository.AddAsync(newInstructor);
+        await _instructorRepository.SaveChangesAsync();
+
+    }
+
+    public async Task<IEnumerable<CourseDto>> GetAllCourseAsync(int instructorId)
+    {
+        Instructor? instructor = await _instructorRepository.GetByIdAsync(instructorId);
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {instructorId} is not found");
+            return Enumerable.Empty<CourseDto>();
+        }
+        return _mapper.Map<List<CourseDto>>(instructor.Courses);
+    }
+
+    public async Task<IEnumerable<InstructorDto>> GetAllInstructorAsync()
+    {
+        var instructors = await _instructorRepository.GetAll()
+            .ToListAsync();
+
+        return _mapper.Map<List<InstructorDto>>(instructors);
+    }
+
+    public async Task<int> GetCourseCountAsync(int instructorId)
+    {
+        Instructor? instructor = await _instructorRepository.GetByIdAsync(instructorId);
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {instructorId} is not found");
+            return 0;
+        }
+        return instructor.Courses.Count();
+    }
+
+    public async Task<InstructorDto?> GetInstructorByIdAsync(int instructorId)
+    {
+        Instructor? instructor = await _instructorRepository.GetByIdAsync(instructorId);
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {instructorId} is not found");
+            return null;
+        }
+        return _mapper.Map<InstructorDto>(instructor);
+    }
+
+    public async Task UpdateInstructorAsync(int instructorId, UpdateInstructorModel model)
+    {
+        Instructor? instructor = await _instructorRepository.GetByIdAsync(instructorId);
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {instructorId} is not found");
+            return;
+        }
+        Instructor updatedInstructor = _mapper.Map(model, instructor);
+        await _instructorRepository.UpdateAsync(updatedInstructor);
+        await _instructorRepository.SaveChangesAsync();
+    }
+}

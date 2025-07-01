@@ -45,9 +45,12 @@ public class Course : Base
     public bool IsPublished { get; set; } = false;
 
     [Column("rating")]
-    public decimal Rating { get; set; }
+    public decimal? Rating { get; set; }
 
-    public ICollection<Lesson>? Lessons { get; set; }
+    [Column("has_completed")]
+    public bool HasCompleted { get; set; } = false;
+
+    public virtual ICollection<Lesson>? Lessons { get; set; }
     public ICollection<Review>? Reviews { get; set; }
     public ICollection<Favourite>? Favorites { get; set; }
 }
