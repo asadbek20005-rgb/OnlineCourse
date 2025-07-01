@@ -24,6 +24,9 @@ public static class DependencyInjectionConfigurator
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IActivityLogService, ActivityLogService>();
         return services;
     }
 }

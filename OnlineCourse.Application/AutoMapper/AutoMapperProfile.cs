@@ -47,6 +47,7 @@ public class AutoMapperProfile : Profile
         CreateMap<List<Comment>, List<CommentDto>>();
         CreateMap<CreateCategoryModel, Category>();
         CreateMap<List<Category>, List<CategoryDto>>();
+        CreateMap<List<ActivityLog>, List<ActivityLogDto>>();
 
         CreateMap<UpdateUserModel, User>()
             .ForMember(dest => dest.FullName, opts => opts.MapFrom(x => x.FullName != null))

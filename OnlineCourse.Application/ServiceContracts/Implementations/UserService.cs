@@ -10,10 +10,12 @@ namespace OnlineCourse.Application.ServiceContracts.Implementations;
 
 public class UserService(
     IBaseRepositroy<User> userRepositroy,
-    IMapper mapper) : StatusGenericHandler, IUserService
+    IMapper mapper,
+    ISecurityService securityService) : StatusGenericHandler, IUserService
 {
     private readonly IBaseRepositroy<User> _userRepository = userRepositroy;
     private readonly IMapper _mapper = mapper;
+    private readonly ISecurityService _securityService = securityService;
     public async Task BlockAsync(Guid userId)
     {
         User? user = await _userRepository.GetByIdAsync(userId);
@@ -123,7 +125,9 @@ public class UserService(
             AddError($"User with email: {user.Email} is already exist");
             return;
         }
+
         var newUser = _mapper.Map<User>(model);
+        newUser.PasswordHash = _securityService.HashPassword(newUser, model.Password);
         await _userRepository.AddAsync(newUser);
         await _userRepository.SaveChangesAsync();
     }

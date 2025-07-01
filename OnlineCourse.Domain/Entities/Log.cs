@@ -20,8 +20,6 @@ public class Log : Base
     [Required]
     public string IpAddress { get; set; } = string.Empty;
 
-
-
 }
 
 
