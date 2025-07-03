@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.RefreshToken;
@@ -13,12 +14,16 @@ public class AuthService(
     IBaseRepositroy<User> userRepository,
     ITokenService tokenService,
     ISecurityService securityService,
-    IBaseRepositroy<RefreshToken> refreshTokenRepository) : StatusGenericHandler, IAuthService
+    IBaseRepositroy<RefreshToken> refreshTokenRepository,
+    IValidator<LoginModel> loginValidator,
+    IValidator<RefreshTokenRequestModel> refreshValidator) : StatusGenericHandler, IAuthService
 {
     private readonly IBaseRepositroy<User> _userRepository = userRepository;
     private readonly ITokenService _tokenService = tokenService;
     private readonly ISecurityService _securityService = securityService;
     private readonly IBaseRepositroy<RefreshToken> _refreshTokenRepository = refreshTokenRepository;
+    private readonly IValidator<LoginModel> _loginValidator = loginValidator;
+    private readonly IValidator<RefreshTokenRequestModel> _refreshValidator = refreshValidator;
     public Task<UserDto> GetCurrentUserAsync(string accessToken)
     {
         throw new NotImplementedException();
@@ -26,6 +31,14 @@ public class AuthService(
 
     public async Task<TokenDto?> LoginAsync(LoginModel model)
     {
+        var validatorResult = await _loginValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         User? user = await _userRepository.GetAll()
             .Where(x => x.Email == model.Email || x.UserName == model.UserName)
             .FirstOrDefaultAsync();
@@ -94,6 +107,14 @@ public class AuthService(
 
     public async Task<TokenDto?> RefreshTokenAsync(RefreshTokenRequestModel model)
     {
+        var validatorResult = await _refreshValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         ClaimsPrincipal? claimsPrincipal = _tokenService.GetPrincipalFromExpiredToken(model.AccessToken);
         if (claimsPrincipal is null)
         {

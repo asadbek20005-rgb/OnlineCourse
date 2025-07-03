@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Review;
@@ -9,12 +10,28 @@ using StatusGeneric;
 namespace OnlineCourse.Application.ServiceContracts.Implementations;
 
 public class ReviewService(IBaseRepositroy<Review> reviewRepository,
-    IMapper mapper) : StatusGenericHandler, IReviewService
+    IMapper mapper,
+    IValidator<CreateReviewModel> validator,
+    IValidator<HasReviewedRequest> validator1,
+    IValidator<UpdateReviewModel> validator2) : StatusGenericHandler, IReviewService
 {
     private readonly IBaseRepositroy<Review> _reviewRepository = reviewRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly IValidator<CreateReviewModel> _createReviewModelValidator = validator;
+    private readonly IValidator<HasReviewedRequest> _hasReviewModelValidator = validator1;
+    private readonly IValidator<UpdateReviewModel> _updateValidator = validator2;
+
     public async Task CreateAsync(CreateReviewModel model)
     {
+        var validatorResult = await _createReviewModelValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
+
         Review? review = await _reviewRepository.GetAll()
                          .Where(x => x.UserID == model.UserID && x.CourseId == model.CourseId)
                          .SingleOrDefaultAsync();
@@ -66,6 +83,15 @@ public class ReviewService(IBaseRepositroy<Review> reviewRepository,
 
     public async Task<bool?> HasReviewedAsync(HasReviewedRequest model)
     {
+        var validatorResult = await _hasReviewModelValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
+
         Review? review = await _reviewRepository.GetAll()
                          .Where(x => x.UserID == model.UserId && x.CourseId == model.CourseId)
                          .SingleOrDefaultAsync();
@@ -81,6 +107,15 @@ public class ReviewService(IBaseRepositroy<Review> reviewRepository,
 
     public async Task UpdateAsync(int reviewId, UpdateReviewModel model)
     {
+        var validatorResult = await _updateValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
+
         Review? review = await _reviewRepository.GetByIdAsync(reviewId);
 
         if (review is null)

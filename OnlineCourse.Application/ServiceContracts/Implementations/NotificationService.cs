@@ -1,8 +1,10 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Notification;
 using OnlineCourse.Application.RepositoryContracts;
+using OnlineCourse.Application.Validators.Review;
 using OnlineCourse.Domain.Entities;
 using StatusGeneric;
 
@@ -11,11 +13,13 @@ namespace OnlineCourse.Application.ServiceContracts.Implementations;
 public class NotificationService(
     IBaseRepositroy<Notification> notificationRepository,
     IBaseRepositroy<User> userRepositroy,
-    IMapper mapper) : StatusGenericHandler, INotificationService
+    IMapper mapper,
+    IValidator<CreateNotificationModel> validator) : StatusGenericHandler, INotificationService
 {
     private readonly IBaseRepositroy<Notification> _notificationRepository = notificationRepository;
     private readonly IBaseRepositroy<User> _userRepository = userRepositroy;
     private readonly IMapper _mapper = mapper;
+    private readonly IValidator<CreateNotificationModel> _validator = validator;
 
 
     public async Task<IEnumerable<NotificationDto>> GetForUserAsync(Guid userId)
@@ -57,6 +61,14 @@ public class NotificationService(
 
     public async Task SendAsync(CreateNotificationModel model)
     {
+        var validatorResult = await _validator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         User? user = await _userRepository.GetByIdAsync(model.UserID);
         if (user is null)
         {

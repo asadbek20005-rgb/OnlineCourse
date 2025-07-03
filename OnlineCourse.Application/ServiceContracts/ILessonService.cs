@@ -11,7 +11,7 @@ public interface ILessonService : IStatusGeneric
     Task<LessonDto?> GetByIdAsync(int lessonId);
     Task<IEnumerable<LessonDto>> GetByCourseAsync(int courseId);
     Task CreateAsync(CreateLessonModel model);
-    Task UpdateAsync(int lessonId, UpdateCourseModel model);
+    Task UpdateAsync(int lessonId, UpdateLessonModel model);
     Task DeleteAsync(int lessonId);
     Task<bool> ExistAsync(int lessonId);
     Task<string> UploadVideoAsync(int lessonId, IFormFile file);

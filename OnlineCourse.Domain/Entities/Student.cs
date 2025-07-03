@@ -10,6 +10,6 @@ public class Student : Base
     [ForeignKey(nameof(UserId))]
     public User? User { get; set; }
 
-    public ICollection<Enrollment>? Enrollments { get; set; }
-    public ICollection<StudentProgress>? ProgressRecords { get; set; }
+    public ICollection<Enrollment>? Enrollments { get; set; }   
+    public ICollection<StudentProgress>? StudentProgresses { get; set; }
 }

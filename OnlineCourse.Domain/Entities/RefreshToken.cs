@@ -1,13 +1,11 @@
+using OnlineCourse.Domain.Bases;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineCourse.Domain.Entities;
 [Table("refresh_token")]
-public class RefreshToken
+public class RefreshToken : Base
 {
-    [Column("id")]
-    [Key]
-    public int Id { get; set; }
     [Column("token")]
     [Required]
     public string Token { get; set; } = string.Empty;

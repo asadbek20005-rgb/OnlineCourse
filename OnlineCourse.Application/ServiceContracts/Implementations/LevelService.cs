@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Level;
@@ -10,13 +11,25 @@ namespace OnlineCourse.Application.ServiceContracts.Implementations;
 
 public class LevelService(
     IBaseRepositroy<Level> levelRepository,
-    IMapper mapper) : StatusGenericHandler, ILevelService
+    IMapper mapper,
+    IValidator<CreateLevelModel> createValidator,
+    IValidator<UpdateLevelModel> updateValidator) : StatusGenericHandler, ILevelService
 {
     private readonly IBaseRepositroy<Level> _levelRepository = levelRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly IValidator<CreateLevelModel> _createValidator = createValidator;
+    private readonly IValidator<UpdateLevelModel> _updateValidator = updateValidator;
 
     public async Task CreateAsync(CreateLevelModel model)
     {
+        var validatorResult = await _createValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         bool levelExist = await _levelRepository.GetAll()
             .AnyAsync(x => x.Name.ToLower() == model.Name.ToLower());
 
@@ -70,6 +83,14 @@ public class LevelService(
 
     public async Task UpdateAsync(int levelId, UpdateLevelModel model)
     {
+        var validatorResult = await _updateValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         Level? level = await _levelRepository.GetByIdAsync(levelId);
 
         if (level is null)

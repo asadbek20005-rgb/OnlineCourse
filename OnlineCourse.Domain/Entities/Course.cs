@@ -52,5 +52,8 @@ public class Course : Base
 
     public virtual ICollection<Lesson>? Lessons { get; set; }
     public ICollection<Review>? Reviews { get; set; }
-    public ICollection<Favourite>? Favorites { get; set; }
+    public ICollection<Favourite>? Favourites { get; set; }
+    public ICollection<StudentProgress>? StudentProgresses { get; set; }
+    public ICollection<Payment>? Payments { get; set; }
+    public ICollection<Enrollment>? Enrollments { get; set; }
 }

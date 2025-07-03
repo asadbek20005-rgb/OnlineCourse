@@ -23,5 +23,20 @@ public class ActivityLog : Base
 
 public enum ActivityTargetType
 {
-    User, Course, Lesson, Review, Comment
+    User,
+    StudentProgress,
+    Student,
+    Review,
+    RefreshToken,
+    Payment,
+    Notification,
+    Log,
+    Level,
+    Lesson,
+    Instructor,
+    Favourite,
+    Enrollment,
+    Course,
+    Comment,
+    Category,
 }

@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Log;
@@ -11,11 +12,13 @@ namespace OnlineCourse.Application.ServiceContracts.Implementations;
 public class LogService(
     IBaseRepositroy<Log> logRepository,
     IBaseRepositroy<User> userRepository,
-    IMapper mapper) : StatusGenericHandler, ILogService
+    IMapper mapper,
+    IValidator<LogRequestModel> validator) : StatusGenericHandler, ILogService
 {
     private readonly IBaseRepositroy<Log> _logRepositroy = logRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IBaseRepositroy<User> _userRepository = userRepository;
+    private readonly IValidator<LogRequestModel> _validator = validator;
     public async Task<IEnumerable<LogDto>> GetAllAsync()
     {
         var logs = await _logRepositroy.GetAll().ToListAsync();
@@ -41,6 +44,14 @@ public class LogService(
 
     public async Task LogAsync(LogRequestModel model)
     {
+        var validatorResult = await _validator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         User? user = await _userRepository.GetByIdAsync(model.UserId);
         if (user is null)
         {

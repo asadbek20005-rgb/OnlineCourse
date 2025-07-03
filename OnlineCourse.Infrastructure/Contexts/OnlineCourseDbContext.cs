@@ -34,6 +34,22 @@ public class OnlineCourseDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new StudentProgressConfiguration());
+        modelBuilder.ApplyConfiguration(new StudentConfiguration());
+        modelBuilder.ApplyConfiguration(new ReviewConfiguration());
+        modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
+        modelBuilder.ApplyConfiguration(new PaymentConfiguration());
+        modelBuilder.ApplyConfiguration(new NotificationConfiguration());
+        modelBuilder.ApplyConfiguration(new LogConfiguration());
+        modelBuilder.ApplyConfiguration(new LevelConfiguration());
+        modelBuilder.ApplyConfiguration(new LessonConfiguration());
+        modelBuilder.ApplyConfiguration(new InstructorConfiguration());
+        modelBuilder.ApplyConfiguration(new FavouriteConfiguration());
+        modelBuilder.ApplyConfiguration(new EnrollmentConfiguration());
+        modelBuilder.ApplyConfiguration(new CourseConfiguration());
+        modelBuilder.ApplyConfiguration(new CommentConfiguration());
+        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new ActivityLogConfiguration());
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

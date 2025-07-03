@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Instructor;
@@ -11,12 +12,15 @@ namespace OnlineCourse.Application.ServiceContracts.Implementations;
 public class InstructorService(
     IBaseRepositroy<Instructor> instructorRepository,
     IBaseRepositroy<User> userRepository,
-    IMapper mapper) : StatusGenericHandler, IInstructorService
+    IMapper mapper,
+    IValidator<CreateInstructorModel> createValidator,
+    IValidator<UpdateInstructorModel> updateValidator) : StatusGenericHandler, IInstructorService
 {
     private readonly IBaseRepositroy<Instructor> _instructorRepository = instructorRepository;
     private readonly IBaseRepositroy<User> _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
-
+    private readonly IValidator<CreateInstructorModel> _createValidator = createValidator;
+    private readonly IValidator<UpdateInstructorModel> _updateValidator = updateValidator;
 
     public async Task ApproveAsync(int instructorId)
     {
@@ -35,6 +39,14 @@ public class InstructorService(
 
     public async Task CreateInstructorAsync(CreateInstructorModel model)
     {
+        var validatorResult = await _createValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         User? user = await _userRepository.GetByIdAsync(model.UserId);
         if (user is null)
         {
@@ -92,6 +104,14 @@ public class InstructorService(
 
     public async Task UpdateInstructorAsync(int instructorId, UpdateInstructorModel model)
     {
+        var validatorResult = await _updateValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         Instructor? instructor = await _instructorRepository.GetByIdAsync(instructorId);
         if (instructor is null)
         {

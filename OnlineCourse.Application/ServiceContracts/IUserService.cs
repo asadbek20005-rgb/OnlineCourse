@@ -9,7 +9,7 @@ public interface IUserService : IStatusGeneric
 {
     Task<UserDto?> GetUserByIdAsync(Guid userId);
     Task<UserDto?> GetUserByEmailAsync(string email);
-    Task<IEnumerable<UserDto>> GetAllUser();
+    Task<IEnumerable<UserDto>> GetAllUserAsync();
     Task RegisterAsync(RegisterModel model);
     Task<bool> ConfirmEmailAsync(Guid userId, string token);
     Task ChangePasswordAsync(ChangePasswordModel model);

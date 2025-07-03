@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Payment;
@@ -11,12 +12,16 @@ namespace OnlineCourse.Application.ServiceContracts.Implementations;
 public class PaymentService(IBaseRepositroy<Payment> paymentRepository,
     IMapper mapper,
     IBaseRepositroy<User> userRepository,
-    IBaseRepositroy<Course> courseRepository) : StatusGenericHandler, IPaymentService
+    IBaseRepositroy<Course> courseRepository,
+    IValidator<CreatePaymentModel> createValidator,
+    IValidator<HasPaidRequestModel> hasPaidReuqestValidator) : StatusGenericHandler, IPaymentService
 {
     private readonly IBaseRepositroy<Payment> _paymentRepository = paymentRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IBaseRepositroy<User> _userRepository = userRepository;
     private readonly IBaseRepositroy<Course> _courseRepository = courseRepository;
+    private readonly IValidator<CreatePaymentModel> _createValidator = createValidator;
+    private readonly IValidator<HasPaidRequestModel> _hasPaidValidator = hasPaidReuqestValidator;
     public async Task<PaymentDto?> GetByIdAsync(int paymentId)
     {
         Payment? payment = await _paymentRepository.GetByIdAsync(paymentId);
@@ -69,6 +74,14 @@ public class PaymentService(IBaseRepositroy<Payment> paymentRepository,
 
     public async Task<bool> HasPaidAsync(HasPaidRequestModel model)
     {
+        var validatorResult = await _hasPaidValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
 
         User? user = await _userRepository.GetByIdAsync(model.UserId);
         if (user is null)
@@ -102,6 +115,15 @@ public class PaymentService(IBaseRepositroy<Payment> paymentRepository,
 
     public async Task InitiateAsync(CreatePaymentModel model)
     {
+
+        var validatorResult = await _createValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         HasPaidRequestModel hasPaidRequestModel = new HasPaidRequestModel
         {
             UserId = model.UserID,

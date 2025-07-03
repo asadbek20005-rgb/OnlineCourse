@@ -26,5 +26,7 @@ public class Lesson : Base
     public string? VideoUrl { get; set; }
 
     public ICollection<Comment>? Comments { get; set; }
+    public ICollection<StudentProgress>? StudentProgresses { get; set; }
+
 
 }

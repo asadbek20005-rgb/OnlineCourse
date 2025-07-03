@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.User;
@@ -11,11 +12,13 @@ namespace OnlineCourse.Application.ServiceContracts.Implementations;
 public class UserService(
     IBaseRepositroy<User> userRepositroy,
     IMapper mapper,
-    ISecurityService securityService) : StatusGenericHandler, IUserService
+    ISecurityService securityService,
+    IValidator<RegisterModel> registerValidator) : StatusGenericHandler, IUserService
 {
     private readonly IBaseRepositroy<User> _userRepository = userRepositroy;
     private readonly IMapper _mapper = mapper;
     private readonly ISecurityService _securityService = securityService;
+    private readonly IValidator<RegisterModel> _registerValidator = registerValidator;
     public async Task BlockAsync(Guid userId)
     {
         User? user = await _userRepository.GetByIdAsync(userId);
@@ -85,7 +88,7 @@ public class UserService(
         return await (_userRepository.GetAll()).AnyAsync(user => user.Email == email);
     }
 
-    public async Task<IEnumerable<UserDto>> GetAllUser()
+    public async Task<IEnumerable<UserDto>> GetAllUserAsync()
     {
         var users = await _userRepository.GetAll().ToListAsync();
         return _mapper.Map<List<UserDto>>(users);
@@ -119,6 +122,16 @@ public class UserService(
 
     public async Task RegisterAsync(RegisterModel model)
     {
+        var validationResult = await _registerValidator.ValidateAsync(model);
+        if (!validationResult.IsValid)
+        {
+            foreach (var error in validationResult.Errors)
+            {
+                AddError($"Validation error: {error}");
+            }
+            return;
+        }
+
         var user = await GetUserByEmailAsync(model.Email);
         if (user is not null)
         {

@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Course;
@@ -13,15 +14,27 @@ public class CourseService(
     IBaseRepositroy<Instructor> instructorRepository,
     IBaseRepositroy<Level> levelRepository,
     IBaseRepositroy<Category> categoryRepository,
-    IMapper mapper) : StatusGenericHandler, ICourseService
+    IMapper mapper,
+    IValidator<CreateCourseModel> createValidator,
+    IValidator<UpdateCourseModel> updateValidator) : StatusGenericHandler, ICourseService
 {
     private readonly IBaseRepositroy<Course> _courseRepository = courseRepository;
     private readonly IBaseRepositroy<Instructor> _instructorRepositroy = instructorRepository;
     private readonly IBaseRepositroy<Level> _levelRepository = levelRepository;
     private readonly IBaseRepositroy<Category> _categoryRepository = categoryRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly IValidator<CreateCourseModel> _createValidator = createValidator;
+    private readonly IValidator<UpdateCourseModel> _updateValidator = updateValidator;
     public async Task CreateAsync(CreateCourseModel model)
     {
+        var validatorResult = await _createValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         Instructor? instructor = await _instructorRepositroy.GetByIdAsync(model.InstructorId);
 
         if (instructor is null)
@@ -155,6 +168,14 @@ public class CourseService(
 
     public async Task UpdateAsync(int courseId, UpdateCourseModel model)
     {
+        var validatorResult = await _updateValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         Course? course = await _courseRepository.GetByIdAsync(courseId);
         if (course is null)
         {

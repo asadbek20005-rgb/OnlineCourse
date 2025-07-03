@@ -1,8 +1,10 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Comment;
 using OnlineCourse.Application.RepositoryContracts;
+using OnlineCourse.Application.Validators.Review;
 using OnlineCourse.Domain.Entities;
 using StatusGeneric;
 
@@ -12,15 +14,25 @@ public class CommentService(
     IBaseRepositroy<Comment> commentRepository,
     IBaseRepositroy<Lesson> lessonRepository,
     IBaseRepositroy<User> userRepository,
-    IMapper mapper) : StatusGenericHandler, ICommentService
+    IMapper mapper,
+    IValidator<CreateCommecntModel> createValidator) : StatusGenericHandler, ICommentService
 {
     private readonly IBaseRepositroy<Comment> _commentRepository = commentRepository;
     private readonly IBaseRepositroy<Lesson> _lessonRepository = lessonRepository;
     private readonly IBaseRepositroy<User> _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly IValidator<CreateCommecntModel> _validator = createValidator;
 
     public async Task CreateAsync(CreateCommecntModel model)
     {
+        var validatorResult = await _validator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         Lesson? lesson = await _lessonRepository.GetByIdAsync(model.LessonId);
 
         if (lesson is null)

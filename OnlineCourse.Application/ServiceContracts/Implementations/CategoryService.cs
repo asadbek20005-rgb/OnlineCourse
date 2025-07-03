@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Category;
@@ -10,13 +11,25 @@ namespace OnlineCourse.Application.ServiceContracts.Implementations;
 
 public class CategoryService(
     IBaseRepositroy<Category> categoryRepository,
-    IMapper mapper) : StatusGenericHandler, ICategoryService
+    IMapper mapper,
+    IValidator<CreateCategoryModel> createValidator,
+    IValidator<UpdateCategoryModel> updateValidator) : StatusGenericHandler, ICategoryService
 {
     private readonly IBaseRepositroy<Category> _categoryRepository = categoryRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly IValidator<CreateCategoryModel> _createValidator = createValidator;
+    private readonly IValidator<UpdateCategoryModel> _updateValidator = updateValidator;
 
     public async Task CreateAsync(CreateCategoryModel model)
     {
+        var validatorResult = await _createValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         Category? category = await _categoryRepository.GetAll()
             .Where(x => x.Name.ToLower() == model.Name.ToLower())
             .FirstOrDefaultAsync();
@@ -70,6 +83,14 @@ public class CategoryService(
 
     public async Task UpdateAsync(int categoryId, UpdateCategoryModel model)
     {
+        var validatorResult = await _updateValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         Category? category = await _categoryRepository.GetByIdAsync(categoryId);
 
         if (category is null)

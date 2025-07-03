@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Student;
@@ -13,7 +14,11 @@ public class StudentService(
     IBaseRepositroy<Course> courseRepository,
     IBaseRepositroy<Enrollment> enrollmentRepository,
     IMapper mapper,
-    IBaseRepositroy<StudentProgress> studentProgresssRepository
+    IBaseRepositroy<StudentProgress> studentProgresssRepository,
+    IValidator<EnrollRequestModel> enrollRequestValidator,
+    IValidator<GetProgressRequestModel> getProgressRequestValidator,
+    IValidator<HasCompletedRequestModel> hasCompletedRequestValidator,
+    IValidator<UpdateProgressModel> updateProgressValidator
     ) : StatusGenericHandler, IStudentService
 {
     private readonly IBaseRepositroy<Student> _studentRepository = studentRepository;
@@ -21,8 +26,24 @@ public class StudentService(
     private readonly IBaseRepositroy<Enrollment> _enrollmentRepository = enrollmentRepository;
     private readonly IMapper _mapper = mapper;
     private readonly IBaseRepositroy<StudentProgress> _studentProgressRepository = studentProgresssRepository;
+    private readonly IValidator<EnrollRequestModel> _enrollRequestValidator = enrollRequestValidator;
+    private readonly IValidator<EnrollRequestModel> _enrollValidator = enrollRequestValidator;
+    private readonly IValidator<GetProgressRequestModel> _getProgressValidator = getProgressRequestValidator;
+    private readonly IValidator<HasCompletedRequestModel> _completedRequest = hasCompletedRequestValidator;
+    private readonly IValidator<UpdateProgressModel> _updateValidator = updateProgressValidator;
+
+
     public async Task EnrollAsync(EnrollRequestModel model)
     {
+        var validatorResult = await _enrollRequestValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
+
         Student? student = await _studentRepository.GetByIdAsync(model.StudentId);
         if (student is null)
         {
@@ -83,6 +104,16 @@ public class StudentService(
 
     public async Task<StudentProgressDto?> GetProgressAsync(GetProgressRequestModel model)
     {
+
+        var validatorResult = await _getProgressValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
+
         Student? student = await _studentRepository.GetByIdAsync(model.StudentId);
         if (student is null)
         {
@@ -128,6 +159,16 @@ public class StudentService(
     public async Task<bool?> HasCompletedCourseAsync(HasCompletedRequestModel model)
     {
 
+        var validatorResult = await _completedRequest.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
+
+
         Student? student = await _studentRepository.GetByIdAsync(model.StudentId);
         if (student is null)
         {
@@ -149,6 +190,15 @@ public class StudentService(
 
     public async Task UpdateProgressAsync(UpdateProgressModel model)
     {
+        var validatorResult = await _updateValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
+
 
         Student? student = await _studentRepository.GetByIdAsync(model.StudentId);
         if (student is null)

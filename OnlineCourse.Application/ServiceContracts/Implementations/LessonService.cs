@@ -1,7 +1,7 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using OnlineCourse.Application.Dtos;
-using OnlineCourse.Application.Models.Course;
 using OnlineCourse.Application.Models.Lesson;
 using OnlineCourse.Application.RepositoryContracts;
 using OnlineCourse.Domain.Entities;
@@ -12,15 +12,27 @@ namespace OnlineCourse.Application.ServiceContracts.Implementations;
 public class LessonService(
     IBaseRepositroy<Lesson> lessonRepository,
     IBaseRepositroy<Course> courseRepository,
-    IMapper mapper) : StatusGenericHandler, ILessonService
+    IMapper mapper,
+    IValidator<CreateLessonModel> createValidator,
+    IValidator<UpdateLessonModel> updateValidator) : StatusGenericHandler, ILessonService
 {
     private readonly IBaseRepositroy<Lesson> _lessonRepository = lessonRepository;
     private readonly IBaseRepositroy<Course> _courseRepository = courseRepository;
+    private readonly IValidator<CreateLessonModel> _createLessonValidator = createValidator;
+    private readonly IValidator<UpdateLessonModel> _updateLessonValidator = updateValidator;
     private readonly IMapper _mapper = mapper;
 
 
     public async Task CreateAsync(CreateLessonModel model)
     {
+        var validatorResult = await _createLessonValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
 
         if (course is null)
@@ -89,8 +101,16 @@ public class LessonService(
         return _mapper.Map<LessonDto>(lesson);
     }
 
-    public async Task UpdateAsync(int lessonId, UpdateCourseModel model)
+    public async Task UpdateAsync(int lessonId, UpdateLessonModel model)
     {
+        var validatorResult = await _updateLessonValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         Lesson? lesson = await _lessonRepository.GetByIdAsync(lessonId);
 
         if (lesson is null)

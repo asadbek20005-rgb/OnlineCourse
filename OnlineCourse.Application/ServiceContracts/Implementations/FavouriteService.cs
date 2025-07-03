@@ -1,8 +1,10 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Favourite;
 using OnlineCourse.Application.RepositoryContracts;
+using OnlineCourse.Application.Validators.Review;
 using OnlineCourse.Domain.Entities;
 using StatusGeneric;
 
@@ -12,15 +14,26 @@ public class FavouriteService(
     IBaseRepositroy<Favourite> favouriteRepository,
     IBaseRepositroy<User> userRepository,
     IBaseRepositroy<Course> courseRepository,
-    IMapper mapper) : StatusGenericHandler, IFavouriteService
+    IMapper mapper,
+    IValidator<AddToFavouriteRequestModel> createValidator,
+    IValidator<IsFavouriteRequestModel> isFavouriteValidator) : StatusGenericHandler, IFavouriteService
 {
     private readonly IBaseRepositroy<Favourite> _favouriteRepository = favouriteRepository;
     private readonly IBaseRepositroy<User> _userRepository = userRepository;
     private readonly IBaseRepositroy<Course> _courseRepository = courseRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly IValidator<AddToFavouriteRequestModel> _addToValidator = createValidator;
+    private readonly IValidator<IsFavouriteRequestModel> _isFavouriteValidator = isFavouriteValidator;
     public async Task AddToFavouriteAsync(AddToFavouriteRequestModel model)
     {
-
+        var validatorResult = await _addToValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
 
         bool result = await IsFavouriteAsync(model);
 
@@ -54,6 +67,14 @@ public class FavouriteService(
 
     public async Task<bool> IsFavouriteAsync(IsFavouriteRequestModel model)
     {
+        var validatorResult = await _isFavouriteValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+        }
         User? user = await _userRepository.GetByIdAsync(model.UserId);
         if (user is null)
         {
