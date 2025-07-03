@@ -62,7 +62,7 @@ public class ReviewService(IBaseRepositroy<Review> reviewRepository,
         await _reviewRepository.SaveChangesAsync();
     }
 
-    public IEnumerable<CourseDto> GetByCourse(int courseId)
+    public async Task<IEnumerable<CourseDto>> GetByCourse(int courseId)
     {
         throw new NotImplementedException();
     }

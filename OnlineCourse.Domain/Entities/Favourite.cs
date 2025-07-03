@@ -10,11 +10,11 @@ public class Favourite : Base
     [Required]
     public Guid UserID { get; set; }
     [ForeignKey(nameof(UserID))]
-    public User? User { get; set; }
+    public virtual User? User { get; set; }
 
     [Column("course_id")]
     [Required]
     public int CourseId { get; set; }
     [ForeignKey(nameof(CourseId))]
-    public Course? Course { get; set; }
+    public virtual Course? Course { get; set; }
 }

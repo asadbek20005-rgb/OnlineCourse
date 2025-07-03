@@ -10,7 +10,7 @@ public class Course : Base
     [Column("instructor_id")]
     public int InstructorId { get; set; }
     [ForeignKey(nameof(InstructorId))]
-    public Instructor? Instructor { get; set; }
+    public virtual Instructor? Instructor { get; set; }
 
     [Column("title")]
     [Required]
@@ -23,14 +23,14 @@ public class Course : Base
     [Column("category_id")]
     public int CategoryId { get; set; }
     [ForeignKey(nameof(CategoryId))]
-    public Category? Category { get; set; }
+    public virtual Category? Category { get; set; }
 
 
     [Column("level_id")]
     public int LevelId { get; set; }
 
     [ForeignKey(nameof(LevelId))]
-    public Level? Level { get; set; }
+    public virtual Level? Level { get; set; }
 
 
     [Column("cover_img_url")]
@@ -51,9 +51,9 @@ public class Course : Base
     public bool HasCompleted { get; set; } = false;
 
     public virtual ICollection<Lesson>? Lessons { get; set; }
-    public ICollection<Review>? Reviews { get; set; }
-    public ICollection<Favourite>? Favourites { get; set; }
-    public ICollection<StudentProgress>? StudentProgresses { get; set; }
-    public ICollection<Payment>? Payments { get; set; }
-    public ICollection<Enrollment>? Enrollments { get; set; }
+    public virtual ICollection<Review>? Reviews { get; set; }
+    public virtual ICollection<Favourite>? Favourites { get; set; }
+    public virtual ICollection<StudentProgress>? StudentProgresses { get; set; }
+    public virtual ICollection<Payment>? Payments { get; set; }
+    public virtual ICollection<Enrollment>? Enrollments { get; set; }
 }

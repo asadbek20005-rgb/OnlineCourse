@@ -11,7 +11,7 @@ public class Instructor : Base
     [Column("user_id")]
     public Guid UserId { get; set; }
     [ForeignKey(nameof(UserId))]
-    public User? User { get; set; }
+    public virtual User? User { get; set; }
 
     [Column("bio")]
     public string? Bio { get; set; }

@@ -1,4 +1,3 @@
-using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourse.Application.Extensions;
 using OnlineCourse.Application.Models.RefreshToken;
@@ -9,14 +8,14 @@ namespace OnlineCourse.Server.Controllers;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
-[ApiVersion("1.0")]
+[Asp.Versioning.ApiVersion("1.0")]
 public class AuthesController(IAuthService authService, IUserService userService) : ControllerBase
 {
     private readonly IAuthService _authService = authService;
     private readonly IUserService _userService = userService;
 
 
-    [HttpPost("api/v{version:apiVersion}/auth/register")]
+    [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
         await _userService.RegisterAsync(model);
@@ -28,7 +27,7 @@ public class AuthesController(IAuthService authService, IUserService userService
     }
 
 
-    [HttpPost("api/v{version:apiVersion}/auth/login")]
+    [HttpPost("login")]
     public async Task<IActionResult> Login(LoginModel model)
     {
         var token = await _authService.LoginAsync(model);
@@ -43,7 +42,7 @@ public class AuthesController(IAuthService authService, IUserService userService
     }
 
 
-    [HttpPost("api/v{version:apiVersion}/auth/logout")]
+    [HttpPost("logout")]
     public async Task<IActionResult> Logout(Guid userId)
     {
         await _authService.LogoutAsync(userId);
@@ -55,7 +54,7 @@ public class AuthesController(IAuthService authService, IUserService userService
         return BadRequest(ModelState);
     }
 
-    [HttpPost("api/v{version:apiVersion}/auth/refresh-token")]
+    [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(RefreshTokenRequestModel model)
     {
         var token = await _authService.RefreshTokenAsync(model);
@@ -67,7 +66,7 @@ public class AuthesController(IAuthService authService, IUserService userService
         return BadRequest(ModelState);
     }
 
-    [HttpPost("api/v{version:apiVersion}/auth/forgot-password")]
+    [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword()
     {
         return Ok("Continue....");
@@ -75,7 +74,7 @@ public class AuthesController(IAuthService authService, IUserService userService
 
 
 
-    [HttpPost("api/v{version:apiVersion}/auth/reset-password")]
+    [HttpPost("reset-password")]
 
     public async Task<IActionResult> ResetPassword()
     {

@@ -10,7 +10,7 @@ public class Payment : Base
     [Required]
     public Guid UserID { get; set; }
     [ForeignKey(nameof(UserID))]
-    public User? User { get; set; }
+    public virtual User? User { get; set; }
 
     [Column("amount")]
     [Required]
@@ -20,7 +20,7 @@ public class Payment : Base
     [Required]
     public int CourseId { get; set; }
     [ForeignKey(nameof(CourseId))]
-    public Course? Course { get; set; }
+    public virtual Course? Course { get; set; }
 
 
     [Column("is_verified")]

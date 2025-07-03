@@ -9,14 +9,14 @@ public class Comment : Base
     [Column("lesson_id")]
     public int LessonId { get; set; }
     [ForeignKey(nameof(LessonId))]
-    public Lesson? Lesson { get; set; }
+    public virtual Lesson? Lesson { get; set; }
 
 
     [Column("user_id")]
     [Required]
     public Guid UserID { get; set; }
     [ForeignKey(nameof(UserID))]
-    public User? User { get; set; }
+    public virtual User? User { get; set; }
 
 
     [Column("text")]
@@ -30,8 +30,8 @@ public class Comment : Base
     public int? ParentCommentId { get; set; }
 
     [ForeignKey(nameof(ParentCommentId))]
-    public Comment? ParentComment { get; set; }
+    public virtual Comment? ParentComment { get; set; }
 
-    public ICollection<Comment>? Replies { get; set; } 
+    public virtual ICollection<Comment>? Replies { get; set; } 
 
 }

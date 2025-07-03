@@ -2,14 +2,14 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OnlineCourse.Application.Mapster;
 using OnlineCourse.Infrastructure.Contexts;
 using OnlineCourse.Server.Configurations;
 using OnlineCourse.Server.Filters;
 using Serilog;
-using Serilog.Sinks.MSSqlServer;
-using System.Collections.ObjectModel;
-using System.Data;
+using Serilog.Sinks.PostgreSQL;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +22,27 @@ builder.Services.AddControllers(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>(); // BU MUHIM
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new Microsoft.AspNetCore.Mvc.Versioning.UrlSegmentApiVersionReader();
+});
+
 builder.Services.AddDbContext<OnlineCourseDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefualtConnection"));
 });
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -42,30 +59,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-var columnOptions = new ColumnOptions();
-columnOptions.Store.Remove(StandardColumn.Message);
-columnOptions.Store.Remove(StandardColumn.Level);
-columnOptions.Store.Remove(StandardColumn.Exception);
-columnOptions.Store.Remove(StandardColumn.Properties);
-columnOptions.Store.Remove(StandardColumn.TimeStamp);
 
-columnOptions.AdditionalColumns = new Collection<SqlColumn>
+var columnWriters = new Dictionary<string, ColumnWriterBase>
 {
-    new SqlColumn { ColumnName = "user_id", DataType = SqlDbType.UniqueIdentifier, AllowNull = false },
-    new SqlColumn { ColumnName = "target_table", DataType = SqlDbType.Int, AllowNull = false },
-    new SqlColumn { ColumnName = "target_table_id", DataType = SqlDbType.NVarChar, DataLength = 200, AllowNull = false }
+
+    { "user_id", new SinglePropertyColumnWriter("UserId", PropertyWriteMethod.ToString) },
+    { "target_table", new SinglePropertyColumnWriter("TargetTable", PropertyWriteMethod.Raw) },
+    { "target_table_id", new SinglePropertyColumnWriter("TargetTableId", PropertyWriteMethod.ToString) }
 };
+
 
 Log.Logger = new LoggerConfiguration()
 .WriteTo.Console()
-.WriteTo.MSSqlServer(
-    connectionString: builder.Configuration.GetConnectionString("SerilogConnection"),
-    sinkOptions: new MSSqlServerSinkOptions
-    {
-        TableName = "logs",
-        AutoCreateSqlTable = true
-    },
-    columnOptions: columnOptions
+.WriteTo.PostgreSQL(
+    connectionString: builder.Configuration.GetConnectionString("DefualtConnection"),
+    tableName: "logs",
+    columnOptions: columnWriters
 )
 .CreateLogger();
 
@@ -75,10 +84,13 @@ builder.DiValidation();
 
 builder.Services.AddApiVersioning(options =>
 {
-    options.DefaultApiVersion = new ApiVersion(1, 0);
     options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
     options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
 });
+
+
 
 var app = builder.Build();
 

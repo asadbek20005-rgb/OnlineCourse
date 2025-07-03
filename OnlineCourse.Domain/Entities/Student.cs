@@ -8,8 +8,8 @@ public class Student : Base
     [Column("user_id")]
     public Guid UserId { get; set; }
     [ForeignKey(nameof(UserId))]
-    public User? User { get; set; }
+    public virtual User? User { get; set; }
 
-    public ICollection<Enrollment>? Enrollments { get; set; }   
-    public ICollection<StudentProgress>? StudentProgresses { get; set; }
+    public virtual  ICollection<Enrollment>? Enrollments { get; set; }   
+    public virtual ICollection<StudentProgress>? StudentProgresses { get; set; }
 }

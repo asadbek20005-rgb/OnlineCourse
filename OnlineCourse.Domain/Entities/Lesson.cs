@@ -11,7 +11,7 @@ public class Lesson : Base
     public int CourseId { get; set; }
 
     [ForeignKey(nameof(CourseId))]
-    public Course? Course { get; set; }
+    public virtual Course? Course { get; set; }
 
 
     [Column("title")]
@@ -25,8 +25,8 @@ public class Lesson : Base
     [Column("video_url")]
     public string? VideoUrl { get; set; }
 
-    public ICollection<Comment>? Comments { get; set; }
-    public ICollection<StudentProgress>? StudentProgresses { get; set; }
+    public virtual ICollection<Comment>? Comments { get; set; }
+    public virtual ICollection<StudentProgress>? StudentProgresses { get; set; }
 
 
 }

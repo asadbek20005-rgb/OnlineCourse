@@ -8,9 +8,9 @@ using OnlineCourse.Application.ServiceContracts;
 
 namespace OnlineCourse.Server.Controllers;
 
-[ApiController]
 [Route("api/v{version:apiVersion}/Instructors/instructor-id/[controller]")]
-[ApiVersion("1.0")]
+[ApiController]
+[Asp.Versioning.ApiVersion("1.0")]
 public class CoursesController(
     ICourseService courseService,
     IFavouriteService favouriteService,
@@ -103,7 +103,7 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpPut("api/v{version:apiVersion}/Courses/publish")]
+    [HttpPut("/api/v1/Courses/publish")]
     public async Task<IActionResult> Publish(int courseId)
     {
         await _courseService.PublishAsync(courseId);
@@ -115,14 +115,14 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpPut("api/v{version:apiVersion}/Courses/unpublish")]
+    [HttpPut("/api/v1/Courses/unpublish")]
     public async Task<IActionResult> UnPublish(int courseId)
     {
         return Ok("soon...");
     }
 
 
-    [HttpPost("api/v{version:apiVersion}/Courses/favorite")]
+    [HttpPost("/api/v1/Courses/favorite")]
     public async Task<IActionResult> AddFavourite(AddToFavouriteRequestModel model)
     {
         await _favouriteService.AddToFavouriteAsync(model);
@@ -133,7 +133,7 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpDelete("api/v{version:apiVersion}/Courses/favorite")]
+    [HttpDelete("/api/v1/Courses/favorite")]
     public async Task<IActionResult> DeleteFavorite(int id)
     {
         await _favouriteService.RemoveFromFavouritesAsync(id);
@@ -147,7 +147,7 @@ public class CoursesController(
 
 
 
-    [HttpGet("api/v{version:apiVersion}/Users/me/favorites")]
+    [HttpGet("/api/v1/Users/me/favorites")]
     public async Task<IActionResult> GetMyFavorites(Guid userId)
     {
         var courses = await _favouriteService.GetByUserAsync(userId);
@@ -161,7 +161,7 @@ public class CoursesController(
 
 
 
-    [HttpGet("api/v{version:apiVersion}/Students/student-id/progress")]
+    [HttpGet("/api/v1/Students/student-id/progress")]
     public async Task<IActionResult> GetStudentProgresses(GetProgressRequestModel model)
     {
         var progresses = await _studentService.GetProgressAsync(model);

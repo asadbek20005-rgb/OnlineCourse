@@ -52,10 +52,10 @@ public class User : Date
     [Column("email_confirmation")]
     public bool EmailConfirmed { get; set; } = false;
 
-    public Instructor? Instructor { get; set; }
-    public Student? Student { get; set; }
+    public virtual Instructor? Instructor { get; set; }
+    public virtual Student? Student { get; set; }
 
-    public ICollection<Notification>? Notification { get; set; }
+    public virtual ICollection<Notification>? Notification { get; set; }
 
     [Column("is_blocked")]
     public bool IsBlocked { get; set; } = false; 

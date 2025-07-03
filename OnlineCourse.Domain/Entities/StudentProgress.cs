@@ -8,16 +8,16 @@ public class StudentProgress : Base
     [Column("student_id")]
     public int StudentId { get; set; }
     [ForeignKey(nameof(StudentId))]
-    public Student? Student { get; set; }
+    public virtual Student? Student { get; set; }
     [Column("course_id")]
     public int CourseId { get; set; }
     [ForeignKey(nameof(CourseId))]
-    public Course? Course { get; set; }
+    public virtual Course? Course { get; set; }
 
     [Column("lesson_id")]
     public int LessonId { get; set; }
     [ForeignKey(nameof(LessonId))]
-    public Lesson? Lesson { get; set; }
+    public virtual Lesson? Lesson { get; set; }
 
     [Column("progress_percent")]
     public float ProgressPercent { get; set; }

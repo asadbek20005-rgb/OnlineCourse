@@ -10,14 +10,14 @@ public class Enrollment : Base
     [Required]
     public int StudentId { get; set; }
     [ForeignKey(nameof(StudentId))]
-    public Student? Student { get; set; }
+    public virtual Student? Student { get; set; }
 
 
     [Column("course_id")]
     [Required]
     public int CourseId { get; set; }
     [ForeignKey(nameof(CourseId))]  
-    public Course? Course { get; set; }
+    public virtual Course? Course { get; set; }
     [Column("enrolled_at")]
     [Required]
     public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;

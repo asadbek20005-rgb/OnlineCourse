@@ -10,7 +10,7 @@ public class ActivityLog : Base
     [Required]
     public Guid UserID { get; set; }
     [ForeignKey(nameof(UserID))]
-    public User? User { get; set; }
+    public virtual User? User { get; set; }
     [Column("target_table")]
     [Required]
     public ActivityTargetType TargetTable { get; set; }
