@@ -19,14 +19,25 @@ public class AuthesController(IAuthService authService, IUserService userService
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
-        await _userService.RegisterAsync(model);
+        string message = await _userService.RegisterAsync(model);
         if (_userService.IsValid)
-            return Ok("Done");
+            return Ok(message);
 
         _userService.CopyToModelState(ModelState);
         return BadRequest(ModelState);
     }
 
+    [HttpPost("verification")]
+    public async Task<IActionResult> ConfirmEmail(ConfirmEmailModel model)
+    {
+        bool res = await _userService.ConfirmEmailAsync(model);
+
+        if (_userService.IsValid)
+            return Ok(res);
+
+        _userService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+    }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginModel model)

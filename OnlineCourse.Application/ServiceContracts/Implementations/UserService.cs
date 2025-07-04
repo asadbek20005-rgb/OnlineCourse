@@ -2,6 +2,8 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
+using OnlineCourse.Application.Models.Auth;
+using OnlineCourse.Application.Models.Email;
 using OnlineCourse.Application.Models.User;
 using OnlineCourse.Application.RepositoryContracts;
 using OnlineCourse.Domain.Entities;
@@ -13,7 +15,10 @@ public class UserService(
     IBaseRepositroy<User> userRepositroy,
     IMapper mapper,
     ISecurityService securityService,
-    IValidator<RegisterModel> registerValidator) : StatusGenericHandler, IUserService
+    IValidator<RegisterModel> registerValidator,
+    IRedisService _redisService,
+    IBaseRepositroy<EmailOtp> _otpRepository,
+    IEmailSenderService _emailSenderService) : StatusGenericHandler, IUserService
 {
     private readonly IBaseRepositroy<User> _userRepository = userRepositroy;
     private readonly IMapper _mapper = mapper;
@@ -65,9 +70,49 @@ public class UserService(
         await _userRepository.SaveChangesAsync();
     }
 
-    public Task<bool> ConfirmEmailAsync(Guid userId, string token)
+    public async Task<bool> ConfirmEmailAsync(ConfirmEmailModel model)
     {
-        throw new NotImplementedException();
+        int code = await _redisService.GetAsync<int>(model.Email);
+
+        if (code != model.Code)
+        {
+            AddError($"Code {model.Code} is invalid");
+            return false;
+        }
+
+        bool expiredCode = await _otpRepository.GetAll()
+            .AnyAsync(x => x.Code == model.Code && x.IsExpired == true);
+
+        if (expiredCode)
+        {
+            AddError($"Code {model.Code} is already expired");
+            return false;
+        }
+
+        var newOtp = new EmailOtp
+        {
+            Email = model.Email,
+            Code = model.Code,
+            IsExpired = true
+        };
+
+        await _otpRepository.AddAsync(newOtp);
+        await _otpRepository.SaveChangesAsync();
+
+
+
+        User? user = await _redisService.GetAsync<User>("user");
+
+        if (user is null)
+        {
+            AddError("User is not found");
+            return false;
+        }
+
+        await _userRepository.AddAsync(user);
+        await _userRepository.SaveChangesAsync();
+        return true;
+
     }
 
     public async Task DeleteAsync(Guid userId)
@@ -120,7 +165,7 @@ public class UserService(
         return _mapper.Map<UserDto>(user);
     }
 
-    public async Task RegisterAsync(RegisterModel model)
+    public async Task<string> RegisterAsync(RegisterModel model)
     {
         var validationResult = await _registerValidator.ValidateAsync(model);
         if (!validationResult.IsValid)
@@ -129,7 +174,7 @@ public class UserService(
             {
                 AddError($"Validation error: {error}");
             }
-            return;
+            return string.Empty;
         }
 
         var userExist = await _userRepository.GetAll()
@@ -138,13 +183,27 @@ public class UserService(
         if (userExist)
         {
             AddError($"User with email: {model.Email} is already exist");
-            return;
+            return string.Empty;
         }
 
         var newUser = _mapper.Map<User>(model);
         newUser.PasswordHash = _securityService.HashPassword(newUser, model.Password);
-        await _userRepository.AddAsync(newUser);
-        await _userRepository.SaveChangesAsync();
+
+        await _redisService.SetAsync("user", newUser);
+
+        int code = new Random().Next(1111, 9999);
+        await _redisService.SetAsync(model.Email, code);
+        string message = $"The verification code is {code}. Code is expired in 1 minutes";
+
+        var senderModel = new EmailSenderModel
+        {
+            To = model.Email,
+            Body = $"The verification code is {code}. Code is expired in 1 minutes",
+            Subject = "Verification Email"
+
+        };
+        await _emailSenderService.SendAsync(senderModel);
+        return message;
     }
 
     public async Task UpdateProfileAsync(Guid userId, UpdateUserModel model)

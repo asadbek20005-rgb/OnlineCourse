@@ -8,6 +8,7 @@ using OnlineCourse.Server.Configurations;
 using OnlineCourse.Server.Filters;
 using Serilog;
 using Serilog.Sinks.PostgreSQL;
+using StackExchange.Redis;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -105,6 +106,12 @@ builder.Services
             builder.Configuration["EmailSettings:SmtpPass"]),
         EnableSsl = true
     });
+
+
+
+builder.Services.AddSingleton<IConnectionMultiplexer>
+    (ConnectionMultiplexer
+    .Connect("localhost:6379,abortConnect=false,connectTimeout=20000,syncTimeout=20000,defaultDatabase=0"));
 
 
 var app = builder.Build();

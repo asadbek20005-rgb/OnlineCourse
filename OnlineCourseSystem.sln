@@ -16,6 +16,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{0B050734-530C-450E-AEC7-57D62AB6E055}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yaml = docker-compose.yaml
+		redis.yaml = redis.yaml
 	EndProjectSection
 EndProject
 Global

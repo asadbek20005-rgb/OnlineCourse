@@ -60,8 +60,6 @@ public class User : Date
     [Column("is_blocked")]
     public bool IsBlocked { get; set; } = false; 
 
-
-
 }
 
 

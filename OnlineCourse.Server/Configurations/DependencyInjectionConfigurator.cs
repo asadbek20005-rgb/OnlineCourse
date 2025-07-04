@@ -28,6 +28,7 @@ public static class DependencyInjectionConfigurator
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IActivityLogService, ActivityLogService>();
         services.AddScoped<IEmailSenderService, EmailSenderService>();
+        services.AddScoped<IRedisService, RedisService>();
         return services;
     }
 }
