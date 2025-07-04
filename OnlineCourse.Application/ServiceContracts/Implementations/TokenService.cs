@@ -22,7 +22,7 @@ public class TokenService(IConfiguration configuration) : ITokenService
 
     public string GenerateToken(User user)
     {
-        var signingKey = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_model.Key)), SecurityAlgorithms.HmacSha256);
+        var signingKey = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_model.SecurityKey)), SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>()
         {
@@ -30,13 +30,14 @@ public class TokenService(IConfiguration configuration) : ITokenService
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new Claim("ResetPassword", "reset-password")
         };
 
         var token = new JwtSecurityTokenHandler()
             .WriteToken(new JwtSecurityToken
             (
-                issuer: _model.Issue,
-                audience: _model.Audiance,
+                issuer: _model.Issuer,
+                audience: _model.Audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: signingKey
@@ -51,12 +52,12 @@ public class TokenService(IConfiguration configuration) : ITokenService
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = _model.Issue,
+            ValidIssuer = _model.Issuer,
             ValidateAudience = true,
-            ValidAudience = _model.Audiance,
+            ValidAudience = _model.Audience,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_model.Key!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_model.SecurityKey!))
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();

@@ -91,7 +91,6 @@ public class ActivityLoggingMiddleware
                 }
                 catch (Exception dbEx)
                 {
-                    // DB ga yozishda xatolik yuz berdi, uni log qilamiz
                     _logger.LogError(dbEx, "ActivityLog yozishda xatolik yuz berdi.");
                 }
             }

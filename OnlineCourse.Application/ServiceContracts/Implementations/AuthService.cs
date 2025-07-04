@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
+using OnlineCourse.Application.Models.Auth;
 using OnlineCourse.Application.Models.RefreshToken;
 using OnlineCourse.Application.Models.User;
 using OnlineCourse.Application.RepositoryContracts;
@@ -11,19 +12,37 @@ using System.Security.Claims;
 namespace OnlineCourse.Application.ServiceContracts.Implementations;
 
 public class AuthService(
-    IBaseRepositroy<User> userRepository,
-    ITokenService tokenService,
-    ISecurityService securityService,
-    IBaseRepositroy<RefreshToken> refreshTokenRepository,
-    IValidator<LoginModel> loginValidator,
-    IValidator<RefreshTokenRequestModel> refreshValidator) : StatusGenericHandler, IAuthService
+    IBaseRepositroy<User> _userRepository,
+    ITokenService _tokenService,
+    ISecurityService _securityService,
+    IBaseRepositroy<RefreshToken> _refreshTokenRepository,
+    IValidator<LoginModel> _loginValidator,
+    IValidator<RefreshTokenRequestModel> _refreshValidator,
+    IEmailSenderService _emailSenderService) : StatusGenericHandler, IAuthService
 {
-    private readonly IBaseRepositroy<User> _userRepository = userRepository;
-    private readonly ITokenService _tokenService = tokenService;
-    private readonly ISecurityService _securityService = securityService;
-    private readonly IBaseRepositroy<RefreshToken> _refreshTokenRepository = refreshTokenRepository;
-    private readonly IValidator<LoginModel> _loginValidator = loginValidator;
-    private readonly IValidator<RefreshTokenRequestModel> _refreshValidator = refreshValidator;
+    public async Task<ForgotPasswordResponse?> ForgotPassword(string myEmail)
+    {
+        User? user = await _userRepository.GetAll()
+           .Where(x => x.Email == myEmail)
+           .FirstOrDefaultAsync();
+
+        if (user is null)
+        {
+            AddError($"User with email: {myEmail} is not found");
+            return null;
+        }
+
+        string token = _tokenService.GenerateToken(user);
+
+        var link = $"https://localhost:7163/api/v1/Authes/reset-password?code={token}&email={user.Email}";
+
+        return new ForgotPasswordResponse
+        {
+            Email = user.Email,
+            Token = token,
+        };
+    }
+
     public Task<UserDto> GetCurrentUserAsync(string accessToken)
     {
         throw new NotImplementedException();
@@ -174,13 +193,55 @@ public class AuthService(
 
     }
 
+    public async Task ResetPassword(ResetPasswordModel model)
+    {
+
+        string emailFromToken = ValidateTokenAsync(model.Token);
+        if (emailFromToken == string.Empty)
+        {
+            AddError("Email is not found from token");
+            return;
+        }
+
+        User? user = await _userRepository.GetAll()
+            .Where(x => x.Email == emailFromToken)
+            .FirstOrDefaultAsync();
+
+        if (user is null)
+        {
+            AddError($"User with email: {emailFromToken} is not found");
+            return;
+        }
+
+
+        user.PasswordHash = _securityService.HashPassword(user, model.NewPassword);
+
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
+    }
+
     public Task RevokeRefreshTokenAsync(string refreshToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> ValidateTokenAsync(string token)
+    public string ValidateTokenAsync(string token)
     {
-        throw new NotImplementedException();
+        var principals = _tokenService.GetPrincipalFromExpiredToken(token);
+
+        if (principals is null)
+        {
+            AddError($"Claim principals is not found");
+            return string.Empty;
+        }
+        var email = principals.FindFirst(ClaimTypes.Email)!.Value;
+        var resetPassword = principals.FindFirst("ResetPassword")!.Value;
+
+        if (resetPassword != "reset-password")
+        {
+            return string.Empty;
+        }
+
+        return email;
     }
 }

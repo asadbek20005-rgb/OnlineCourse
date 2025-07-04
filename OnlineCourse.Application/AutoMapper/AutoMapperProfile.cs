@@ -19,35 +19,26 @@ public class AutoMapperProfile : Profile
 {
     public AutoMapperProfile()
     {
-        CreateMap<List<User>, List<UserDto>>();
         CreateMap<RegisterModel, User>();
         CreateMap<EnrollRequestModel, Enrollment>();
-        CreateMap<List<Course>, List<CourseDto>>();
         CreateMap<StudentProgress, StudentProgressDto>();
         CreateMap<CreateReviewModel, Review>();
         CreateMap<Review, ReviewDto>();
         CreateMap<Payment, PaymentDto>();
-        CreateMap<List<Payment>, List<PaymentDto>>();
         CreateMap<CreatePaymentModel, Payment>();
         CreateMap<Notification, NotificationDto>();
-        CreateMap<List<Notification>, List<NotificationDto>>();
         CreateMap<Log, LogDto>();
-        CreateMap<List<Log>, List<LogDto>>();
         CreateMap<CreateLevelModel, Level>();
-        CreateMap<List<Level>, List<LevelDto>>();
         CreateMap<CreateLessonModel, Lesson>();
         CreateMap<CreateInstructorModel, Instructor>();
-        CreateMap<List<Instructor>, List<InstructorDto>>();
         CreateMap<AddToFavouriteRequestModel, Favourite>();
-        CreateMap<List<Favourite>, List<FavouriteDto>>();
         CreateMap<CreateCourseModel, Course>();
         CreateMap<Course, CourseDto>();
         CreateMap<CreateCommecntModel, Comment>();
         CreateMap<Comment, CommentDto>();
-        CreateMap<List<Comment>, List<CommentDto>>();
         CreateMap<CreateCategoryModel, Category>();
-        CreateMap<List<Category>, List<CategoryDto>>();
-        CreateMap<List<ActivityLog>, List<ActivityLogDto>>();
+        CreateMap<User, UserDto>();
+
 
         CreateMap<UpdateUserModel, User>()
             .ForMember(dest => dest.FullName, opts => opts.MapFrom(x => x.FullName != null))

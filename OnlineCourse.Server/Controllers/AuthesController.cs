@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourse.Application.Extensions;
+using OnlineCourse.Application.Models.Auth;
 using OnlineCourse.Application.Models.RefreshToken;
 using OnlineCourse.Application.Models.User;
 using OnlineCourse.Application.ServiceContracts;
@@ -67,17 +68,31 @@ public class AuthesController(IAuthService authService, IUserService userService
     }
 
     [HttpPost("forgot-password")]
-    public async Task<IActionResult> ForgotPassword()
+    public async Task<IActionResult> ForgotPassword(string email)
     {
-        return Ok("Continue....");
+        var response = await _authService.ForgotPassword(email);
+        if (_authService.IsValid)
+        {
+            return Ok(response);
+        }
+
+        _authService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+
     }
 
 
 
     [HttpPost("reset-password")]
-
-    public async Task<IActionResult> ResetPassword()
+    public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
     {
-        return Ok("Continue....");
+        await _authService.ResetPassword(model);
+        if (_authService.IsValid)
+        {
+            return Ok("Done");
+        }
+
+        _authService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
     }
 }

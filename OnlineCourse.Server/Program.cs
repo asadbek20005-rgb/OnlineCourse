@@ -8,8 +8,9 @@ using OnlineCourse.Server.Configurations;
 using OnlineCourse.Server.Filters;
 using Serilog;
 using Serilog.Sinks.PostgreSQL;
+using System.Net;
+using System.Net.Mail;
 using System.Text;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,7 @@ builder.Services.AddControllers(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.ConfigureOptions<ConfigureSwaggerOptions>(); // BU MUHIM
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 builder.Services.AddVersionedApiExplorer(options =>
 {
     options.GroupNameFormat = "'v'VVV";
@@ -90,6 +91,20 @@ builder.Services.AddApiVersioning(options =>
     options.ApiVersionReader = new UrlSegmentApiVersionReader();
 });
 
+
+
+
+builder.Services
+    .AddFluentEmail(builder.Configuration["EmailSettings:FromEmail"])
+    .AddRazorRenderer()
+    .AddSmtpSender(new SmtpClient(builder.Configuration["EmailSettings:SmtpHost"])
+    {
+        Port = int.Parse(builder.Configuration["EmailSettings:SmtpPort"]),
+        Credentials = new NetworkCredential(
+            builder.Configuration["EmailSettings:SmtpUser"],
+            builder.Configuration["EmailSettings:SmtpPass"]),
+        EnableSsl = true
+    });
 
 
 var app = builder.Build();

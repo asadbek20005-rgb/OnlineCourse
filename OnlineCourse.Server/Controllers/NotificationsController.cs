@@ -28,7 +28,7 @@ public class NotificationsController(INotificationService notificationService) :
     }
 
 
-    [HttpPut("notification-id")]
+    [HttpPut("notification-id/mark-as-read")]
     public async Task<IActionResult> Read(int notificationId)
     {
         await _notificationService.MarkAsReadAsync(notificationId);

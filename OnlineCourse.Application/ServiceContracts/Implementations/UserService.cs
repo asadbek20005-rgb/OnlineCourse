@@ -132,10 +132,12 @@ public class UserService(
             return;
         }
 
-        var user = await GetUserByEmailAsync(model.Email);
-        if (user is not null)
+        var userExist = await _userRepository.GetAll()
+            .AnyAsync(x => x.Email == model.Email);
+
+        if (userExist)
         {
-            AddError($"User with email: {user.Email} is already exist");
+            AddError($"User with email: {model.Email} is already exist");
             return;
         }
 
