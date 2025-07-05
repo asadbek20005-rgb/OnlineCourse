@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OnlineCourse.Infrastructure.Contexts;
@@ -11,9 +12,11 @@ using OnlineCourse.Infrastructure.Contexts;
 namespace OnlineCourse.Infrastructure.Migrations
 {
     [DbContext(typeof(OnlineCourseDbContext))]
-    partial class OnlineCourseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250705075514_Fourth")]
+    partial class Fourth
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -551,9 +554,8 @@ namespace OnlineCourse.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("payment_date");
 
-                    b.Property<string>("TransactionId")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("TransactionId")
+                        .HasColumnType("integer")
                         .HasColumnName("transaction_id");
 
                     b.Property<DateTime>("UpdatedAt")

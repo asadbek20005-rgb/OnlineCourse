@@ -38,6 +38,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Comment, CommentDto>();
         CreateMap<CreateCategoryModel, Category>();
         CreateMap<User, UserDto>();
+        CreateMap<Category, CategoryDto>();
+        CreateMap<Level, LevelDto>();
 
 
         CreateMap<UpdateUserModel, User>()

@@ -1,9 +1,11 @@
 using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Auth;
 using OnlineCourse.Application.Models.Email;
+using OnlineCourse.Application.Models.Minio;
 using OnlineCourse.Application.Models.User;
 using OnlineCourse.Application.RepositoryContracts;
 using OnlineCourse.Domain.Entities;
@@ -18,7 +20,8 @@ public class UserService(
     IValidator<RegisterModel> registerValidator,
     IRedisService _redisService,
     IBaseRepositroy<EmailOtp> _otpRepository,
-    IEmailSenderService _emailSenderService) : StatusGenericHandler, IUserService
+    IEmailSenderService _emailSenderService,
+    IMinioService _minioService) : StatusGenericHandler, IUserService
 {
     private readonly IBaseRepositroy<User> _userRepository = userRepositroy;
     private readonly IMapper _mapper = mapper;
@@ -96,6 +99,8 @@ public class UserService(
             IsExpired = true
         };
 
+ 
+
         await _otpRepository.AddAsync(newOtp);
         await _otpRepository.SaveChangesAsync();
 
@@ -108,6 +113,8 @@ public class UserService(
             AddError("User is not found");
             return false;
         }
+
+        user.EmailConfirmed = true;
 
         await _userRepository.AddAsync(user);
         await _userRepository.SaveChangesAsync();
@@ -126,6 +133,21 @@ public class UserService(
 
         await _userRepository.DeleteAsync(user);
         await _userRepository.SaveChangesAsync();
+    }
+
+    public async Task<Stream> DownloadImgAsync(Guid userId, string fileName)
+    {
+        User? user = await _userRepository.GetByIdAsync(userId);
+
+        if (user is null)
+        {
+            AddError($"User with id: {userId} is not found");
+            return Stream.Null;
+        }
+
+        Stream stream = await _minioService.DownloadFileAsync(fileName);
+
+        return stream;
     }
 
     public async Task<bool> EmailExistAsync(string email)
@@ -198,8 +220,8 @@ public class UserService(
         var senderModel = new EmailSenderModel
         {
             To = model.Email,
-            Body = $"The verification code is {code}. Code is expired in 1 minutes",
-            Subject = "Verification Email"
+            Body = $"Tasdiqlash kodi: {code}. Kod muddati 1 daqiqada tugaydi",
+            Subject = "Tasdiqlash"
 
         };
         await _emailSenderService.SendAsync(senderModel);
@@ -220,16 +242,43 @@ public class UserService(
         await _userRepository.SaveChangesAsync();
     }
 
+    public async Task UploadImgAsync(Guid userId, IFormFile file)
+    {
+        User? user = await _userRepository.GetByIdAsync(userId);
+
+        if(user is null)
+        {
+            AddError($"User with id: {userId} is not found");
+            return;
+        }
+
+        var (fileName, contentType, size, data) = await SaveFileDetails(file);
+
+        var uploadFileModel = new UploadFileModel
+        {
+            FileName = fileName,
+            ContentType = contentType,
+            Size = size,
+            Data = data
+        };
+
+        await _minioService.UploadFileAsync(uploadFileModel);
+    }
 
 
-    //private async Task<User> GetUserById(Guid userId)
-    //{
-    //    User? user = await _userRepository.GetByIdAsync(userId);
-    //    if (user is null)
-    //    {
-    //        AddError($"User with Id: {userId} is not found");
-    //        return null;
-    //    }
-    //    return user;
-    //}
+    private async Task<(string FileName, string ContentType, long Size, MemoryStream Data)> SaveFileDetails(IFormFile file)
+    {
+        var fileName = Guid.NewGuid().ToString();
+        string contentType = file.ContentType;
+        long size = file.Length;
+
+        var data = new MemoryStream();
+        await file.CopyToAsync(data);
+
+        return (fileName, contentType, size, data);
+    }
+
+
+
+
 }

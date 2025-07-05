@@ -73,8 +73,6 @@ public class StudentService(
         await _enrollmentRepository.AddAsync(newEnrollment);
         await _enrollmentRepository.SaveChangesAsync();
     }
-
-
     public async Task<IEnumerable<CourseDto>> GetEnrolledCourses(int id)
     {
         Student? student = await _studentRepository.GetByIdAsync(id);
@@ -99,9 +97,6 @@ public class StudentService(
 
         return _mapper.Map<List<CourseDto>>(myCourses);
     }
-
-
-
     public async Task<StudentProgressDto?> GetProgressAsync(GetProgressRequestModel model)
     {
 
@@ -143,7 +138,6 @@ public class StudentService(
         return _mapper.Map<StudentProgressDto>(studentProgress);
 
     }
-
     public async Task<StudentDto?> GetStudentByIdAsync(int id)
     {
         Student? student = await _studentRepository.GetByIdAsync(id);
@@ -155,7 +149,6 @@ public class StudentService(
 
         return _mapper.Map<StudentDto>(student);
     }
-
     public async Task<bool?> HasCompletedCourseAsync(HasCompletedRequestModel model)
     {
 
@@ -187,7 +180,36 @@ public class StudentService(
 
         return course.HasCompleted;
     }
+    public async Task Unenroll(UnEnrollModel model)
+    {
+        Student? student = await _studentRepository.GetByIdAsync(model.StudentId);
+        if (student is null)
+        {
+            AddError($"Student with id: {model.StudentId} is not found");
+            return;
+        }
 
+
+        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return;
+        }
+
+        Enrollment? enrollment = await _enrollmentRepository.GetByIdAsync(model.EnrollmentId);
+        if (enrollment is null)
+        {
+            AddError($"Enrollment with id: {model.EnrollmentId} is not found");
+            return;
+        }
+
+
+        await _enrollmentRepository.DeleteAsync(enrollment);
+        await _enrollmentRepository.SaveChangesAsync();
+
+    }
     public async Task UpdateProgressAsync(UpdateProgressModel model)
     {
         var validatorResult = await _updateValidator.ValidateAsync(model);

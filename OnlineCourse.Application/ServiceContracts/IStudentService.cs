@@ -12,4 +12,5 @@ public interface IStudentService : IStatusGeneric
     Task<StudentProgressDto?> GetProgressAsync(GetProgressRequestModel model);
     Task UpdateProgressAsync(UpdateProgressModel model);
     Task<bool?> HasCompletedCourseAsync(HasCompletedRequestModel model);
+    Task Unenroll(UnEnrollModel model);
 }

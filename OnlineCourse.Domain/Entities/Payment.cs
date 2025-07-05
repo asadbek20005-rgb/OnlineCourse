@@ -34,4 +34,7 @@ public class Payment : Base
     [Column("has_paid")]
     public bool HasPaid { get; set; } = false;
 
+    [Column("transaction_id")]
+    [Required]
+    public string TransactionId { get; set; }
 }

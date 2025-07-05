@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Lesson;
+using OnlineCourse.Application.Models.Minio;
 using OnlineCourse.Application.RepositoryContracts;
 using OnlineCourse.Domain.Entities;
 using StatusGeneric;
@@ -14,7 +15,8 @@ public class LessonService(
     IBaseRepositroy<Course> courseRepository,
     IMapper mapper,
     IValidator<CreateLessonModel> createValidator,
-    IValidator<UpdateLessonModel> updateValidator) : StatusGenericHandler, ILessonService
+    IValidator<UpdateLessonModel> updateValidator,
+    IMinioService _minioService) : StatusGenericHandler, ILessonService
 {
     private readonly IBaseRepositroy<Lesson> _lessonRepository = lessonRepository;
     private readonly IBaseRepositroy<Course> _courseRepository = courseRepository;
@@ -60,6 +62,19 @@ public class LessonService(
 
         await _lessonRepository.DeleteAsync(lesson);
         await _lessonRepository.SaveChangesAsync();
+    }
+
+    public async Task<Stream> DownloadVideoAsync(int lessonId, string fileName)
+    {
+        Lesson? lesson = await _lessonRepository.GetByIdAsync(lessonId);
+
+        if (lesson is null)
+        {
+            AddError($"Lesson with id: {lessonId} is not found");
+            return Stream.Null;
+        }
+
+        return await _minioService.DownloadFileAsync(fileName);
     }
 
     public async Task<bool> ExistAsync(int lessonId)
@@ -120,8 +135,46 @@ public class LessonService(
         }
     }
 
-    public Task<string> UploadVideoAsync(int lessonId, IFormFile file)
+    public async Task<string> UploadVideoAsync(int lessonId, IFormFile file)
     {
-        throw new NotImplementedException();
+        Lesson? lesson = await _lessonRepository.GetByIdAsync(lessonId);
+
+        if (lesson is null)
+        {
+            AddError($"Lesson with id: {lessonId} is not found");
+            return string.Empty;
+        }
+
+
+
+        var (fileName, contentType, size, data) = await SaveFileDetails(file);
+
+        var uploadFileModel = new UploadFileModel
+        {
+            FileName = fileName,
+            ContentType = contentType,
+            Size = size,
+            Data = data
+        };
+
+        await _minioService.UploadFileAsync(uploadFileModel);
+        return fileName;
     }
+
+
+    private async Task<(string FileName, string ContentType, long Size, MemoryStream Data)> SaveFileDetails(IFormFile file)
+    {
+        var fileName = Guid.NewGuid().ToString();
+        string contentType = file.ContentType;
+        long size = file.Length;
+
+        var data = new MemoryStream();
+        await file.CopyToAsync(data);
+
+        return (fileName, contentType, size, data);
+    }
+
+
+
+
 }

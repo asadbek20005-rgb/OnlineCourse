@@ -9,7 +9,7 @@ public class CreateCourseModel
     [Required]
     [MaxLength(50)]
     [MinLength(3)]
-    [RegularExpression("^(?!\\s)[a-zA-Z0-9?-??-???\\s\\-:',.&()]{3,100}(?<!\\s)$\r\n")]
+    //[RegularExpression("^(?!\\s)[a-zA-Z0-9?-??-???\\s\\-:',.&()]{3,100}(?<!\\s)$\r\n")]
     public string Title { get; set; } = string.Empty;
     [Required]
     public int CategoryId { get; set; }

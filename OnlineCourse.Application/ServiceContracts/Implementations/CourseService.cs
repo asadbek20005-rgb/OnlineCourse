@@ -1,8 +1,11 @@
 using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Course;
+using OnlineCourse.Application.Models.Minio;
+using OnlineCourse.Application.Models.Pagination;
 using OnlineCourse.Application.RepositoryContracts;
 using OnlineCourse.Domain.Entities;
 using StatusGeneric;
@@ -16,7 +19,9 @@ public class CourseService(
     IBaseRepositroy<Category> categoryRepository,
     IMapper mapper,
     IValidator<CreateCourseModel> createValidator,
-    IValidator<UpdateCourseModel> updateValidator) : StatusGenericHandler, ICourseService
+    IValidator<UpdateCourseModel> updateValidator,
+    IBaseRepositroy<User> _userRepository,
+    IMinioService _minioService) : StatusGenericHandler, ICourseService
 {
     private readonly IBaseRepositroy<Course> _courseRepository = courseRepository;
     private readonly IBaseRepositroy<Instructor> _instructorRepositroy = instructorRepository;
@@ -128,6 +133,15 @@ public class CourseService(
         return _mapper.Map<List<CourseDto>>(courses);
     }
 
+    public async Task<IEnumerable<CourseDto>> GetCoursesByPagination(PaginationModel model)
+    {
+        var query = _courseRepository.GetAll();
+
+        var courses = await query.Skip((model.Page - 1) * model.PageSize).Take(model.PageSize).ToListAsync();
+
+        return _mapper.Map<List<CourseDto>>(courses);
+    }
+
     public async Task<IEnumerable<CourseDto>> GetCoursesTopRatedAsync(int count)
     {
         var courses = await _courseRepository.GetAll()
@@ -148,12 +162,21 @@ public class CourseService(
 
     }
 
-    public async Task PublishAsync(int courseId)
+    public async Task PublishAsync(PublishModel model)
     {
-        Course? course = await _courseRepository.GetByIdAsync(courseId);
+        User? user = await _userRepository.GetByIdAsync(model.UserId);
+
+        if (user is null)
+        {
+            AddError($"User with id: {model.UserId} is not found");
+            return;
+        }
+
+        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+
         if (course is null)
         {
-            AddError($"Course with id: {courseId} is not found");
+            AddError($"Course with id: {model.CourseId} is not found");
             return;
         }
         course.IsPublished = true;
@@ -161,9 +184,36 @@ public class CourseService(
         await _courseRepository.SaveChangesAsync();
     }
 
-    public Task<IEnumerable<CourseDto>> SearchAsync(string keyword)
+    public async Task<IEnumerable<CourseDto>> SearchAsync(string query)
     {
-        throw new NotImplementedException();
+        var courses = await _courseRepository.GetAll()
+            .Where(x => x.Title.ToLower().Contains(query.ToLower()))
+            .ToListAsync();
+
+        return _mapper.Map<List<CourseDto>>(courses);
+    }
+
+    public async Task UnPublishAsync(UnPublishModel model)
+    {
+        User? user = await _userRepository.GetByIdAsync(model.UserId);
+
+        if (user is null)
+        {
+            AddError($"User with id: {model.UserId} is not found");
+            return;
+        }
+
+        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return;
+        }
+
+        course.IsPublished = false;
+        await _courseRepository.UpdateAsync(course);
+        await _courseRepository.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(int courseId, UpdateCourseModel model)
@@ -214,4 +264,52 @@ public class CourseService(
             return;
         }
     }
+
+    public async Task UploadImg(UploadCourseImgModel model)
+    {
+        User? user = await _userRepository.GetByIdAsync(model.UserId);
+
+        if (user is null)
+        {
+            AddError($"User with id: {model.UserId} is not found");
+            return;
+        }
+
+        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return;
+        }
+
+        var (fileName, contentType, size, data) = await SaveFileDetails(model.File);
+
+        var uploadFileModel = new UploadFileModel
+        {
+            FileName = fileName,
+            ContentType = contentType,
+            Size = size,
+            Data = data
+        };
+
+        await _minioService.UploadFileAsync(uploadFileModel);
+
+    }
+
+    private async Task<(string FileName, string ContentType, long Size, MemoryStream Data)> SaveFileDetails(IFormFile file)
+    {
+        var fileName = Guid.NewGuid().ToString();
+        string contentType = file.ContentType;
+        long size = file.Length;
+
+        var data = new MemoryStream();
+        await file.CopyToAsync(data);
+
+        return (fileName, contentType, size, data);
+    }
+
+
+
+
 }

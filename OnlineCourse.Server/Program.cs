@@ -1,14 +1,17 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OnlineCourse.Application.Mapster;
+using OnlineCourse.Application.Models.Minio;
 using OnlineCourse.Infrastructure.Contexts;
 using OnlineCourse.Server.Configurations;
 using OnlineCourse.Server.Filters;
 using Serilog;
 using Serilog.Sinks.PostgreSQL;
 using StackExchange.Redis;
+using Stripe;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -112,6 +115,13 @@ builder.Services
 builder.Services.AddSingleton<IConnectionMultiplexer>
     (ConnectionMultiplexer
     .Connect("localhost:6379,abortConnect=false,connectTimeout=20000,syncTimeout=20000,defaultDatabase=0"));
+
+builder.Services.Configure<MinioSettings>(builder.Configuration.GetSection("MinIO"));
+builder.Services.AddSingleton(sp =>
+sp.GetRequiredService<IOptions<MinioSettings>>().Value);
+
+
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 
 var app = builder.Build();

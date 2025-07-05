@@ -14,10 +14,10 @@ public class PaymentsController(IPaymentService paymentService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreatePaymentModel model)
     {
-        await _paymentService.InitiateAsync(model);
+       string res = await _paymentService.InitiateAsync(model);
         if (_paymentService.IsValid)
         {
-            return Ok("Done");
+            return Ok(res);
         }
 
         _paymentService.CopyToModelState(ModelState);

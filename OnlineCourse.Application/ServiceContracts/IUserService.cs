@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Auth;
 using OnlineCourse.Application.Models.User;
@@ -20,6 +21,8 @@ public interface IUserService : IStatusGeneric
     Task BlockAsync(Guid userId);
     Task DeleteAsync(Guid userId);
     Task<bool> EmailExistAsync(string email);
+    Task UploadImgAsync(Guid userId, IFormFile file);
+    Task<Stream> DownloadImgAsync(Guid userId, string fileName);
 
 }
 

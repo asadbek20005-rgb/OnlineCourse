@@ -8,7 +8,7 @@ public interface IPaymentService : IStatusGeneric
 {
     Task<PaymentDto?> GetByIdAsync(int paymentId);
     Task<IEnumerable<PaymentDto>> GetByUser(Guid userId);
-    Task InitiateAsync(CreatePaymentModel model);
+    Task<string> InitiateAsync(CreatePaymentModel model);
     Task VerifyAsync(int paymentId);
     Task<bool> HasPaidAsync(HasPaidRequestModel model);
     Task<decimal> GetTotalPaidAsync(Guid userId);

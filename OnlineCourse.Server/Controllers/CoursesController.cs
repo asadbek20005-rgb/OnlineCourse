@@ -1,8 +1,8 @@
-using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourse.Application.Extensions;
 using OnlineCourse.Application.Models.Course;
 using OnlineCourse.Application.Models.Favourite;
+using OnlineCourse.Application.Models.Pagination;
 using OnlineCourse.Application.Models.Student;
 using OnlineCourse.Application.ServiceContracts;
 
@@ -104,9 +104,9 @@ public class CoursesController(
     }
 
     [HttpPut("/api/v1/Courses/publish")]
-    public async Task<IActionResult> Publish(int courseId)
+    public async Task<IActionResult> Publish(PublishModel model)
     {
-        await _courseService.PublishAsync(courseId);
+        await _courseService.PublishAsync(model);
 
         if (_courseService.IsValid)
             return Ok("Done");
@@ -174,5 +174,17 @@ public class CoursesController(
     }
 
 
+    [HttpGet("pagination")]
+    public async Task<IActionResult> GetCoursesPagination([FromBody] PaginationModel model)
+    {
+        var courses = await _courseService.GetCoursesByPagination(model);
 
+        if (_courseService.IsValid)
+            return Ok(courses);
+
+        _courseService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+    }
+
+        
 }

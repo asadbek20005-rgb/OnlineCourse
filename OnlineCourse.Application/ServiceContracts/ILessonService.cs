@@ -15,6 +15,7 @@ public interface ILessonService : IStatusGeneric
     Task DeleteAsync(int lessonId);
     Task<bool> ExistAsync(int lessonId);
     Task<string> UploadVideoAsync(int lessonId, IFormFile file);
+    Task<Stream> DownloadVideoAsync(int lessonId, string fileName);
 }
 
 //Task<ResultDto> ReorderAsync(int courseId, Dictionary<int, short> lessonOrders);

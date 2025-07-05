@@ -6,6 +6,7 @@ using OnlineCourse.Application.Models.Payment;
 using OnlineCourse.Application.RepositoryContracts;
 using OnlineCourse.Domain.Entities;
 using StatusGeneric;
+using Stripe;
 
 namespace OnlineCourse.Application.ServiceContracts.Implementations;
 
@@ -113,8 +114,26 @@ public class PaymentService(IBaseRepositroy<Payment> paymentRepository,
 
     }
 
-    public async Task InitiateAsync(CreatePaymentModel model)
+    public async Task<string> InitiateAsync(CreatePaymentModel model)
     {
+
+        User? user = await _userRepository.GetByIdAsync(model.UserID);
+        if (user is null)
+        {
+            AddError($"User with id: {model.UserID} is not found");
+            return "";
+        }
+
+        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return "";
+        }
+
+
+
 
         var validatorResult = await _createValidator.ValidateAsync(model);
         if (!validatorResult.IsValid)
@@ -135,13 +154,28 @@ public class PaymentService(IBaseRepositroy<Payment> paymentRepository,
         if (hasPaid)
         {
             AddError($"Payment with user id: {model.UserID} and course id: {model.CourseId} has paid before");
-            return;
+            return "";
         }
+
+        var options = new PaymentIntentCreateOptions
+        {
+            Amount = (long)model.Amount,
+            Currency = "usd",
+            PaymentMethodTypes = new List<string> { "card" }
+        };
+
+        var service = new PaymentIntentService();
+        var paymentIntent = await service.CreateAsync(options);
 
         Payment newPayment = _mapper.Map<Payment>(model);
         newPayment.HasPaid = true;
+        newPayment.TransactionId = paymentIntent.Id;
+        newPayment.CourseId = course.Id;
+        newPayment.UserID = user.Id;
         await _paymentRepository.AddAsync(newPayment);
         await _paymentRepository.SaveChangesAsync();
+
+        return paymentIntent.ClientSecret;
     }
 
     public Task VerifyAsync(int paymentId)
