@@ -60,4 +60,20 @@ public class NotificationsController(INotificationService notificationService) :
     }
 
 
+    [HttpDelete("notification-id")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _notificationService.DeleteAsync(id);
+
+        if (_notificationService.IsValid)
+        {
+            return Ok("Done");
+        }
+
+        _notificationService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+    }
+
+    
+
 }

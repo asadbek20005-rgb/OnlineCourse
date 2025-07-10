@@ -77,9 +77,12 @@ public class UserService(
     {
         int code = await _redisService.GetAsync<int>(model.Email);
 
+
+
+
         if (code != model.Code)
         {
-            AddError($"Code {model.Code} is invalid");
+            AddError($"Code {model.Code} or email {model.Email} is invalid");
             return false;
         }
 
@@ -99,7 +102,7 @@ public class UserService(
             IsExpired = true
         };
 
- 
+
 
         await _otpRepository.AddAsync(newOtp);
         await _otpRepository.SaveChangesAsync();
@@ -187,6 +190,19 @@ public class UserService(
         return _mapper.Map<UserDto>(user);
     }
 
+    public async Task<UserDto?> GetUserProfileAsync(Guid userId)
+    {
+        User? user = await _userRepository.GetByIdAsync(userId);
+
+        if (user is null)
+        {
+            AddError($"User with id: {userId} is not found");
+            return null;
+        }
+
+        return _mapper.Map<UserDto>(user);
+    }
+
     public async Task<string> RegisterAsync(RegisterModel model)
     {
         var validationResult = await _registerValidator.ValidateAsync(model);
@@ -199,12 +215,21 @@ public class UserService(
             return string.Empty;
         }
 
-        var userExist = await _userRepository.GetAll()
-            .AnyAsync(x => x.Email == model.Email);
+        var query = _userRepository.GetAll();
 
-        if (userExist)
+        bool emailExist = await query.AnyAsync(x => x.Email == model.Email);
+
+        if (emailExist)
         {
             AddError($"User with email: {model.Email} is already exist");
+            return string.Empty;
+        }
+
+        bool usernameExist = await query.AnyAsync(x => x.UserName == model.UserName);
+
+        if (usernameExist)
+        {
+            AddError($"User with username: {model.UserName} is already exist");
             return string.Empty;
         }
 
@@ -228,6 +253,21 @@ public class UserService(
         return message;
     }
 
+    public async Task UnBlockAsync(Guid userId)
+    {
+        User? user = await _userRepository.GetByIdAsync(userId);
+
+        if (user is null)
+        {
+            AddError($"User with id: {userId} is not found");
+            return;
+        }
+
+        user.IsBlocked = false;
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
+    }
+
     public async Task UpdateProfileAsync(Guid userId, UpdateUserModel model)
     {
         User? user = await _userRepository.GetByIdAsync(userId);
@@ -246,7 +286,7 @@ public class UserService(
     {
         User? user = await _userRepository.GetByIdAsync(userId);
 
-        if(user is null)
+        if (user is null)
         {
             AddError($"User with id: {userId} is not found");
             return;

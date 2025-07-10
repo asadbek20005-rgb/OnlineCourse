@@ -13,7 +13,8 @@ public class CategoryService(
     IBaseRepositroy<Category> categoryRepository,
     IMapper mapper,
     IValidator<CreateCategoryModel> createValidator,
-    IValidator<UpdateCategoryModel> updateValidator) : StatusGenericHandler, ICategoryService
+    IValidator<UpdateCategoryModel> updateValidator,
+    IBaseRepositroy<Course> _courseRepository) : StatusGenericHandler, ICategoryService
 {
     private readonly IBaseRepositroy<Category> _categoryRepository = categoryRepository;
     private readonly IMapper _mapper = mapper;
@@ -79,6 +80,23 @@ public class CategoryService(
         }
 
         return _mapper.Map<CategoryDto>(category);
+    }
+
+    public async Task<int> GetTotalCourseAsync(GetTotalCourseModel model)
+    {
+        Category? category = await _categoryRepository.GetByIdAsync(model.CategoryId);
+
+        if (category is null)
+        {
+            AddError($"Category with id: {model.CategoryId} is not found");
+            return 0;
+        }
+
+        int count = await _courseRepository.GetAll()
+            .Where(x => x.CategoryId == category.Id)
+            .CountAsync();
+
+        return count;
     }
 
     public async Task UpdateAsync(int categoryId, UpdateCategoryModel model)

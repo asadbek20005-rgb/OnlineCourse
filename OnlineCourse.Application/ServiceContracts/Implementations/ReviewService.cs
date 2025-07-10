@@ -10,10 +10,12 @@ using StatusGeneric;
 namespace OnlineCourse.Application.ServiceContracts.Implementations;
 
 public class ReviewService(IBaseRepositroy<Review> reviewRepository,
+    IBaseRepositroy<Course> _courseRepository,
     IMapper mapper,
     IValidator<CreateReviewModel> validator,
     IValidator<HasReviewedRequest> validator1,
-    IValidator<UpdateReviewModel> validator2) : StatusGenericHandler, IReviewService
+    IValidator<UpdateReviewModel> validator2,
+    IBaseRepositroy<User> _userRepository) : StatusGenericHandler, IReviewService
 {
     private readonly IBaseRepositroy<Review> _reviewRepository = reviewRepository;
     private readonly IMapper _mapper = mapper;
@@ -31,6 +33,23 @@ public class ReviewService(IBaseRepositroy<Review> reviewRepository,
                 AddError($"Validation error: {error.ErrorMessage}");
             }
         }
+
+        User? user = await _userRepository.GetByIdAsync(model.UserID);
+
+        if (user is null)
+        {
+            AddError($"User with id: {model.UserID} is not found");
+            return;
+        }
+
+
+        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return;
+        }
+
 
         Review? review = await _reviewRepository.GetAll()
                          .Where(x => x.UserID == model.UserID && x.CourseId == model.CourseId)
@@ -62,9 +81,22 @@ public class ReviewService(IBaseRepositroy<Review> reviewRepository,
         await _reviewRepository.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<CourseDto>> GetByCourse(int courseId)
+    public async Task<IEnumerable<ReviewDto>> GetByCourse(int courseId)
     {
-        throw new NotImplementedException();
+        Course? course = await _courseRepository.GetByIdAsync(courseId);
+
+        if (course is null)
+        {
+            AddError($"Course with id: {courseId} is not found");
+            return Enumerable.Empty<ReviewDto>();
+        }
+
+        var reviews = await _reviewRepository.GetAll()
+            .Where(x => x.CourseId == course.Id)
+            .ToListAsync();
+
+        return _mapper.Map<List<ReviewDto>>(reviews);
+
     }
 
     public async Task<ReviewDto?> GetByIdAsync(int reviewId)

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineCourse.Domain.Entities;
+
 [Table("instructors")]
 [Index(nameof(UserId), IsUnique = true)]
 public class Instructor : Base
@@ -24,5 +25,4 @@ public class Instructor : Base
     public bool ApprovedByAdmin { get; set; } = false;
 
     public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
-
 }

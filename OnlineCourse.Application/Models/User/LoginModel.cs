@@ -6,7 +6,6 @@ public class LoginModel
 {
 
     [EmailAddress]
-    [Required]
     //[RegularExpression("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$\r\n")]
     public string? Email { get; set; }
 

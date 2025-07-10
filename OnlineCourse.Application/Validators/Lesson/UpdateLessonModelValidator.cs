@@ -7,12 +7,7 @@ public class UpdateLessonModelValidator : AbstractValidator<UpdateLessonModel>
 {
     public UpdateLessonModelValidator()
     {
-        When(x => x.CourseId.HasValue, () =>
-        {
-            RuleFor(x => x.CourseId!.Value)
-                .GreaterThan(0).WithMessage("Course ID must be greater than 0.");
-        });
-
+       
         When(x => !string.IsNullOrWhiteSpace(x.Title), () =>
         {
             RuleFor(x => x.Title!)

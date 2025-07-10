@@ -19,12 +19,10 @@ public class Course : Base
     [RegularExpression("^(?!\\s)[a-zA-Z0-9?-??-???\\s\\-:',.&()]{3,100}(?<!\\s)$\r\n")]
     public string Title { get; set; } = string.Empty;
 
-
     [Column("category_id")]
     public int CategoryId { get; set; }
     [ForeignKey(nameof(CategoryId))]
     public virtual Category? Category { get; set; }
-
 
     [Column("level_id")]
     public int LevelId { get; set; }
@@ -32,14 +30,12 @@ public class Course : Base
     [ForeignKey(nameof(LevelId))]
     public virtual Level? Level { get; set; }
 
-
     [Column("cover_img_url")]
     public string? CoverImgUrl { get; set; }
 
     [Column("price")]
     [Required]
     public decimal Price { get; set; }
-
 
     [Column("is_published")]
     public bool IsPublished { get; set; } = false;
@@ -49,6 +45,9 @@ public class Course : Base
 
     [Column("has_completed")]
     public bool HasCompleted { get; set; } = false;
+
+    [Column("approved")]
+    public bool Approved { get; set; } = false;
 
     public virtual ICollection<Lesson>? Lessons { get; set; }
     public virtual ICollection<Review>? Reviews { get; set; }

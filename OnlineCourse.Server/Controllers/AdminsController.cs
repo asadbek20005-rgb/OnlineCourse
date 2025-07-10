@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourse.Application.Extensions;
+using OnlineCourse.Application.Models.Course;
 using OnlineCourse.Application.ServiceContracts;
 
 namespace OnlineCourse.Server.Controllers;
@@ -10,13 +11,14 @@ namespace OnlineCourse.Server.Controllers;
 public class AdminsController(
     IInstructorService instructorService,
     IUserService userService,
-    IPaymentService paymentService) : ControllerBase
+    IPaymentService paymentService,
+    ICourseService _courseService) : ControllerBase
 {
     private readonly IInstructorService _instructorService = instructorService;
     private readonly IUserService _userService = userService;
     private readonly IPaymentService _paymentService = paymentService;
 
-    [HttpPost("Instructors/instructor-id/approve")]
+    [HttpPut("Instructors/instructor-id/approve")]
     public async Task<IActionResult> Approve(int id)
     {
         await _instructorService.ApproveAsync(id);
@@ -38,7 +40,7 @@ public class AdminsController(
 
         if (_userService.IsValid)
         {
-            return Ok("Done");
+            return Ok(users);
         }
 
         _userService.CopyToModelState(ModelState);
@@ -48,11 +50,12 @@ public class AdminsController(
 
 
 
-    [HttpGet("Payments")]
-    public async Task<IActionResult> GetPayments()
-    {
-        return Ok("soon...");
-    }
+    //[HttpGet("Payments")]
+    //public async Task<IActionResult> GetPayments()
+    //{
+    //    var payments = await _paymentService.GetTotalPaidAsync();
+    //    return Ok("soon...");
+    //}
 
 
     [HttpPut("Users/{userId:guid}/ban")]
@@ -71,21 +74,45 @@ public class AdminsController(
 
 
     [HttpPut("Users/{userId:guid}/unban")]
-    public async Task<IActionResult> unBanUser(Guid userId)
+    public async Task<IActionResult> UnBanUser(Guid userId)
     {
-        //await _userService.Un(userId);
+        await _userService.UnBlockAsync(userId);
 
-        //if (_userService.IsValid)
-        //{
-        //    return Ok("Done");
-        //}
+        if (_userService.IsValid)
+        {
+            return Ok("Done");
+        }
 
-        //_userService.CopyToModelState(ModelState);
-        //return BadRequest(ModelState);
+        _userService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
 
-        return Ok("soon...");
     }
 
+
+    [HttpPut("Courses/course-id/approve")]
+    public async Task<IActionResult> ApproveCourse(ApproveCourseModel model)
+    {
+        await _courseService.ApproveAsync(model);
+
+        if (_courseService.IsValid)
+            return Ok("Done");
+
+        _courseService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+    }
+
+
+    [HttpPut("Courses/course-id/reject")]
+    public async Task<IActionResult> RejectCourse(RejectCourseModel model)
+    {
+        await _courseService.RejectAsync(model);
+
+        if (_courseService.IsValid)
+            return Ok("Done");
+
+        _courseService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+    }
 
 
 }

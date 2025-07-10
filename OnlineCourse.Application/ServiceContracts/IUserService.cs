@@ -19,11 +19,13 @@ public interface IUserService : IStatusGeneric
     Task ChangeRoleAsync(Guid userId, UserRole newRole);
     Task ChangeStatusAsync(Guid userId, UserStatus newStatus);
     Task BlockAsync(Guid userId);
+    Task UnBlockAsync(Guid userId);
+
     Task DeleteAsync(Guid userId);
     Task<bool> EmailExistAsync(string email);
     Task UploadImgAsync(Guid userId, IFormFile file);
     Task<Stream> DownloadImgAsync(Guid userId, string fileName);
-
+    Task<UserDto?> GetUserProfileAsync(Guid userId);
 }
 
 //Task<ResultDto<PaginatedList<UserDto>>> GetPagedAsync(UserFilterDto filter);

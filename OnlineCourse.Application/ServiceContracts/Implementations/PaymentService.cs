@@ -106,7 +106,6 @@ public class PaymentService(IBaseRepositroy<Payment> paymentRepository,
 
         if (payment is null)
         {
-            AddError($"Payment with user id: {model.UserId} and course id: {model.CourseId} is not found");
             return false;
         }
         return payment.HasPaid;
@@ -116,6 +115,16 @@ public class PaymentService(IBaseRepositroy<Payment> paymentRepository,
 
     public async Task<string> InitiateAsync(CreatePaymentModel model)
     {
+
+        var validatorResult = await _createValidator.ValidateAsync(model);
+        if (!validatorResult.IsValid)
+        {
+            foreach (var error in validatorResult.Errors)
+            {
+                AddError($"Validation error: {error.ErrorMessage}");
+            }
+            return "";
+        }
 
         User? user = await _userRepository.GetByIdAsync(model.UserID);
         if (user is null)
@@ -135,14 +144,7 @@ public class PaymentService(IBaseRepositroy<Payment> paymentRepository,
 
 
 
-        var validatorResult = await _createValidator.ValidateAsync(model);
-        if (!validatorResult.IsValid)
-        {
-            foreach (var error in validatorResult.Errors)
-            {
-                AddError($"Validation error: {error.ErrorMessage}");
-            }
-        }
+
         HasPaidRequestModel hasPaidRequestModel = new HasPaidRequestModel
         {
             UserId = model.UserID,
@@ -163,6 +165,12 @@ public class PaymentService(IBaseRepositroy<Payment> paymentRepository,
             Currency = "usd",
             PaymentMethodTypes = new List<string> { "card" }
         };
+
+        if (model.Amount != course.Price)
+        {
+            AddError($"Payment amount: {model.Amount} is not valid");
+            return "";
+        }
 
         var service = new PaymentIntentService();
         var paymentIntent = await service.CreateAsync(options);

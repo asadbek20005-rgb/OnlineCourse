@@ -1,4 +1,5 @@
 using OnlineCourse.Application.Dtos;
+using OnlineCourse.Application.Models.Course;
 using OnlineCourse.Application.Models.Student;
 using StatusGeneric;
 
@@ -13,4 +14,15 @@ public interface IStudentService : IStatusGeneric
     Task UpdateProgressAsync(UpdateProgressModel model);
     Task<bool?> HasCompletedCourseAsync(HasCompletedRequestModel model);
     Task Unenroll(UnEnrollModel model);
+
+
+    Task<IEnumerable<LessonDto>> GetLessonsByCourseIdAsync(GetLessonsByCourseRequestModel model);
+    Task<LessonDto?> GetLessonByIdAsync(GetLessonByIdRequestModel model);
+    Task<IEnumerable<CourseDto>> GetFavoriteCoursesAsync(int studentId);
+    Task<int> GetActiveStudentCountAsync();
+    Task<int> GetStudentsCountByInstructorIdAsync(GetInstructorStudentsCount model);
+    Task<int> GetTotalStudentsCountByCourseId(GetStudentsByCourseIdModel model);
+
+    Task CreateAsync(CreateStudentModel model);
+
 }

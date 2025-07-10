@@ -9,7 +9,6 @@ public class Student : Base
     public Guid UserId { get; set; }
     [ForeignKey(nameof(UserId))]
     public virtual User? User { get; set; }
-
     public virtual  ICollection<Enrollment>? Enrollments { get; set; }   
     public virtual ICollection<StudentProgress>? StudentProgresses { get; set; }
 }

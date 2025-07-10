@@ -46,6 +46,7 @@ public class InstructorService(
             {
                 AddError($"Validation error: {error.ErrorMessage}");
             }
+            return;
         }
         User? user = await _userRepository.GetByIdAsync(model.UserId);
         if (user is null)
@@ -54,11 +55,34 @@ public class InstructorService(
             return;
         }
 
+        bool instructorExist = await _instructorRepository.GetAll()
+            .AnyAsync(x => x.UserId == model.UserId);
+
+        if (instructorExist)
+        {
+            AddError($"Instructor with user id: {model.UserId} is already exist");
+            return;
+        }
+
         Instructor newInstructor = _mapper.Map<Instructor>(model);
 
         await _instructorRepository.AddAsync(newInstructor);
         await _instructorRepository.SaveChangesAsync();
 
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        Instructor? instructor = await _instructorRepository.GetByIdAsync(id);
+
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {id} is not found");
+            return;
+        }
+
+        await _instructorRepository.DeleteAsync(instructor);
+        await _instructorRepository.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<CourseDto>> GetAllCourseAsync(int instructorId)
@@ -100,6 +124,11 @@ public class InstructorService(
             return null;
         }
         return _mapper.Map<InstructorDto>(instructor);
+    }
+
+    public async Task<int> GetTotalInstructorsCountAsync()
+    {
+        return await _instructorRepository.GetAll().CountAsync();
     }
 
     public async Task UpdateInstructorAsync(int instructorId, UpdateInstructorModel model)

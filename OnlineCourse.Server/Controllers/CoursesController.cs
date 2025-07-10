@@ -80,7 +80,7 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpGet("category")]
+    [HttpGet("/api/v1/Courses/category")]
     public async Task<IActionResult> Filter([FromQuery] int categoryId)
     {
         var courses = await _courseService.GetCoursesByCategoryAsync(categoryId);
@@ -92,7 +92,7 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpGet("rating")]
+    [HttpGet("/api/v1/Courses/rating")]
     public async Task<IActionResult> GetTopRated([FromQuery] int count)
     {
         var courses = await _courseService.GetCoursesTopRatedAsync(count);
@@ -103,7 +103,7 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpPut("/api/v1/Courses/publish")]
+    [HttpPut("publish")]
     public async Task<IActionResult> Publish(PublishModel model)
     {
         await _courseService.PublishAsync(model);
@@ -115,14 +115,21 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpPut("/api/v1/Courses/unpublish")]
-    public async Task<IActionResult> UnPublish(int courseId)
+    [HttpPut("unpublish")]
+    public async Task<IActionResult> UnPublish(UnPublishModel model)
     {
-        return Ok("soon...");
+        await _courseService.UnPublishAsync(model);
+
+        if (_courseService.IsValid)
+            return Ok("Done");
+
+        _courseService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+
     }
 
 
-    [HttpPost("/api/v1/Courses/favorite")]
+    [HttpPost("/api/v1/Users/user-id/Courses/course-id/favorite")]
     public async Task<IActionResult> AddFavourite(AddToFavouriteRequestModel model)
     {
         await _favouriteService.AddToFavouriteAsync(model);
@@ -133,12 +140,12 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpDelete("/api/v1/Courses/favorite")]
-    public async Task<IActionResult> DeleteFavorite(int id)
+    [HttpDelete("/api/v1/Users/user-id/Courses/course-id/favorite")]
+    public async Task<IActionResult> DeleteFavorite(int favoriteId)
     {
-        await _favouriteService.RemoveFromFavouritesAsync(id);
+        await _favouriteService.RemoveFromFavouritesAsync(favoriteId);
 
-        if (_courseService.IsValid)
+        if (_favouriteService.IsValid)
             return Ok("Done");
 
         _courseService.CopyToModelState(ModelState);
@@ -147,7 +154,7 @@ public class CoursesController(
 
 
 
-    [HttpGet("/api/v1/Users/me/favorites")]
+    [HttpGet("/api/v1/Users/user-id/Courses/favorites")]
     public async Task<IActionResult> GetMyFavorites(Guid userId)
     {
         var courses = await _favouriteService.GetByUserAsync(userId);
@@ -160,22 +167,8 @@ public class CoursesController(
     }
 
 
-
-    [HttpGet("/api/v1/Students/student-id/progress")]
-    public async Task<IActionResult> GetStudentProgresses(GetProgressRequestModel model)
-    {
-        var progresses = await _studentService.GetProgressAsync(model);
-
-        if (_courseService.IsValid)
-            return Ok(progresses);
-
-        _courseService.CopyToModelState(ModelState);
-        return BadRequest(ModelState);
-    }
-
-
-    [HttpGet("pagination")]
-    public async Task<IActionResult> GetCoursesPagination([FromBody] PaginationModel model)
+    [HttpGet("/api/v1/Courses/pagination")]
+    public async Task<IActionResult> GetCoursesPagination([FromQuery] PaginationModel model)
     {
         var courses = await _courseService.GetCoursesByPagination(model);
 
@@ -186,5 +179,73 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-        
+    [HttpGet("/api/v1/Courses/price")]
+    public async Task<IActionResult> GetByPrice([FromQuery] GetCoursesByPriceModel model)
+    {
+        var courses = await _courseService.GetCoursesByPriceAsync(model);
+
+
+        if (_courseService.IsValid)
+            return Ok(courses);
+
+        _courseService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+
+    }
+
+
+    [HttpGet("/api/v1/Courses/level")]
+    public async Task<IActionResult> GetByLevel([FromQuery] GetCoursesByLevelModel model)
+    {
+        var courses = await _courseService.GetCoursesByLevelAsync(model);
+
+
+        if (_courseService.IsValid)
+            return Ok(courses);
+
+        _courseService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+    }
+
+
+    [HttpGet("/api/v1/Categories/category-id/course-count")]
+    public async Task<IActionResult> GetCourseCount(GetCourseCountByCategoryIdModel model)
+    {
+        int count = await _courseService.GetCourseCountByCategoryIdAsync(model);
+
+
+        if (_courseService.IsValid)
+            return Ok(count);
+
+        _courseService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+
+    }
+
+
+    [HttpGet("/api/v1/Courses/count")]
+    public async Task<IActionResult> GetCoursesCount()
+    {
+        int count = await _courseService.GetTotalCourseCountAsync();
+
+        if (_courseService.IsValid)
+            return Ok(count);
+
+        _courseService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+    }
+
+
+    [HttpGet("/api/v1/Courses/published")]
+    public async Task<IActionResult> GetPulishedCourses()
+    {
+        var courses = await _courseService.GetPublishedCoursesAsync();
+
+        if (_courseService.IsValid)
+            return Ok(courses);
+
+        _courseService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+    }
+
 }

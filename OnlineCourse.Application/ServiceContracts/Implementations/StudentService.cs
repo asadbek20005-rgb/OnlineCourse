@@ -18,7 +18,10 @@ public class StudentService(
     IValidator<EnrollRequestModel> enrollRequestValidator,
     IValidator<GetProgressRequestModel> getProgressRequestValidator,
     IValidator<HasCompletedRequestModel> hasCompletedRequestValidator,
-    IValidator<UpdateProgressModel> updateProgressValidator
+    IValidator<UpdateProgressModel> updateProgressValidator,
+    IBaseRepositroy<Instructor> _instructorRepository,
+    IBaseRepositroy<User> _userRepository,
+    IBaseRepositroy<Payment> _paymentRepository
     ) : StatusGenericHandler, IStudentService
 {
     private readonly IBaseRepositroy<Student> _studentRepository = studentRepository;
@@ -44,6 +47,8 @@ public class StudentService(
             }
         }
 
+
+
         Student? student = await _studentRepository.GetByIdAsync(model.StudentId);
         if (student is null)
         {
@@ -56,6 +61,23 @@ public class StudentService(
         if (course is null)
         {
             AddError($"Course with id: {model.CourseId} is not found");
+            return;
+        }
+
+        User? user = await _userRepository.GetByIdAsync(student.UserId);
+
+        if (user is null)
+        {
+            AddError($"User with id: {student.UserId} is not found");
+            return;
+        }
+
+        bool hasPaymentBefore = await _paymentRepository.GetAll()
+         .AnyAsync(x => x.UserID == user.Id);
+
+        if (!hasPaymentBefore)
+        {
+            AddError($"Student with id: {student.Id} must pay for this course with id: {course.Id}");
             return;
         }
 
@@ -252,5 +274,152 @@ public class StudentService(
 
         await _studentProgressRepository.UpdateAsync(updatedProgress);
         await _courseRepository.SaveChangesAsync();
+    }
+    public async Task<IEnumerable<LessonDto>> GetLessonsByCourseIdAsync(GetLessonsByCourseRequestModel model)
+    {
+        Student? student = await _studentRepository.GetByIdAsync(model.StudentId);
+        if (student is null)
+        {
+            AddError($"Student with id: {model.StudentId} is not found");
+            return Enumerable.Empty<LessonDto>();
+        }
+
+        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return Enumerable.Empty<LessonDto>();
+        }
+
+        bool isEnrolled = await _enrollmentRepository.GetAll()
+            .AnyAsync(e => e.StudentId == model.StudentId && e.CourseId == model.CourseId);
+
+        if (!isEnrolled)
+        {
+            AddError("Student is not enrolled in this course.");
+            return Enumerable.Empty<LessonDto>();
+        }
+
+        var lessons = course.Lessons ?? [];
+
+        return _mapper.Map<IEnumerable<LessonDto>>(lessons);
+    }
+    public async Task<LessonDto?> GetLessonByIdAsync(GetLessonByIdRequestModel model)
+    {
+        Student? student = await _studentRepository.GetByIdAsync(model.StudentId);
+        if (student is null)
+        {
+            AddError($"Student with id: {model.StudentId} is not found");
+            return null;
+        }
+
+        Course? course = await _courseRepository.GetAll()
+            .Include(c => c.Lessons)
+            .FirstOrDefaultAsync(c => c.Id == model.CourseId);
+
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return null;
+        }
+
+        bool isEnrolled = await _enrollmentRepository.GetAll()
+            .AnyAsync(e => e.StudentId == model.StudentId && e.CourseId == model.CourseId);
+
+        if (!isEnrolled)
+        {
+            AddError($"Student with id: {student.Id} is not enrolled in this course with id: {course.Id}.");
+            return null;
+        }
+
+        Lesson? lesson = course.Lessons?.FirstOrDefault(l => l.Id == model.LessonId);
+
+        if (lesson is null)
+        {
+            AddError($"Lesson with id: {model.LessonId} is not found");
+            return null;
+        }
+
+        return _mapper.Map<LessonDto>(lesson);
+    }
+    public async Task<IEnumerable<CourseDto>> GetFavoriteCoursesAsync(int studentId)
+    {
+        Student? student = await _studentRepository.GetByIdAsync(studentId);
+        if (student is null)
+        {
+            AddError($"Student with id: {studentId} is not found");
+            return Enumerable.Empty<CourseDto>();
+        }
+
+        var courses = await _enrollmentRepository.GetAll()
+       .Where(e => e.StudentId == studentId)
+       .Include(e => e.Course)
+       .Select(e => e.Course)
+       .ToListAsync();
+
+
+        return _mapper.Map<List<CourseDto>>(courses);
+    }
+    public async Task<int> GetActiveStudentCountAsync()
+    {
+        return await _studentRepository.GetAll()
+            .CountAsync();
+    }
+    public async Task<int> GetStudentsCountByInstructorIdAsync(GetInstructorStudentsCount model)
+    {
+        Instructor? instructor = await _instructorRepository.GetByIdAsync(model.InstructorId);
+
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {model.InstructorId} is not found");
+            return 0;
+        }
+
+        return await _enrollmentRepository.GetAll()
+      .Where(e => e.Course!.InstructorId == instructor.Id)
+      .CountAsync();
+    }
+    public async Task<int> GetTotalStudentsCountByCourseId(GetStudentsByCourseIdModel model)
+    {
+        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return 0;
+        }
+
+        return await _enrollmentRepository.GetAll()
+            .Where(x => x.CourseId == course.Id)
+            .CountAsync();
+    }
+
+    public async Task CreateAsync(CreateStudentModel model)
+    {
+        bool studentExist = await _studentRepository.GetAll()
+            .AnyAsync(x => x.UserId == model.UserId);
+
+        if (studentExist)
+        {
+            AddError($"Student with user id: {model.UserId} is already exist");
+            return;
+        }
+
+
+        User? user = await _userRepository.GetByIdAsync(model.UserId);
+
+        if (user is null)
+        {
+            AddError($"User with id: {model.UserId} is not found");
+            return;
+        }
+
+        var newStudent = new Student
+        {
+            UserId = user.Id
+        };
+
+        await _studentRepository.AddAsync(newStudent);
+        await _studentRepository.SaveChangesAsync();
     }
 }

@@ -12,8 +12,8 @@ using OnlineCourse.Infrastructure.Contexts;
 namespace OnlineCourse.Infrastructure.Migrations
 {
     [DbContext(typeof(OnlineCourseDbContext))]
-    [Migration("20250704122146_Third")]
-    partial class Third
+    [Migration("20250710092344_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -149,6 +149,10 @@ namespace OnlineCourse.Infrastructure.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Approved")
+                        .HasColumnType("boolean")
+                        .HasColumnName("approved");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer")
@@ -553,6 +557,11 @@ namespace OnlineCourse.Infrastructure.Migrations
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("payment_date");
+
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("transaction_id");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")

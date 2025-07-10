@@ -1,4 +1,3 @@
-using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourse.Application.Extensions;
 using OnlineCourse.Application.Models.Instructor;
@@ -66,7 +65,27 @@ public class InstructorsController(IInstructorService instructorService) : Contr
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        return Ok("soon...");
+        await _instructorService.DeleteAsync(id);
+        if (_instructorService.IsValid)
+        {
+            return Ok("Done");
+        }
+        _instructorService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
+    }
+
+
+    [HttpGet("count")]
+    public async Task<IActionResult> GetTotalCount()
+    {
+        int count = await _instructorService.GetTotalInstructorsCountAsync();
+
+        if (_instructorService.IsValid)
+        {
+            return Ok(count);
+        }
+        _instructorService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
     }
 
 

@@ -40,46 +40,48 @@ public class AutoMapperProfile : Profile
         CreateMap<User, UserDto>();
         CreateMap<Category, CategoryDto>();
         CreateMap<Level, LevelDto>();
+        CreateMap<Instructor, InstructorDto>();
+        CreateMap<Favourite, FavouriteDto>();
+        CreateMap<Lesson, LessonDto>();
+        CreateMap<Student, StudentDto>();
 
 
         CreateMap<UpdateUserModel, User>()
-            .ForMember(dest => dest.FullName, opts => opts.MapFrom(x => x.FullName != null))
-            .ForMember(dest => dest.UserName, opts => opts.MapFrom(x => x.UserName != null));
+            .ForMember(dest => dest.FullName, opts => opts.Condition(src => src.FullName != null))
+            .ForMember(dest => dest.UserName, opts => opts.Condition(src => src.UserName != null));
 
         CreateMap<UpdateProgressModel, StudentProgress>()
-            .ForMember(dest => dest.StudentId, opts => opts.MapFrom(x => x.StudentId != null))
-            .ForMember(dest => dest.CourseId, opts => opts.MapFrom(x => x.CourseId != null))
-            .ForMember(dest => dest.LessonId, opts => opts.MapFrom(x => x.LessonId != null))
-            .ForMember(dest => dest.ProgressPercent, opts => opts.MapFrom(x => x.ProgressPercent != null));
+            .ForMember(dest => dest.StudentId, opts => opts.Condition(src => src.StudentId != null))
+            .ForMember(dest => dest.CourseId, opts => opts.Condition(src => src.CourseId != null))
+            .ForMember(dest => dest.LessonId, opts => opts.Condition(src => src.LessonId != null))
+            .ForMember(dest => dest.ProgressPercent, opts => opts.Condition(src => src.ProgressPercent != null));
 
         CreateMap<UpdateReviewModel, Review>()
-            .ForMember(dest => dest.UserID, opts => opts.MapFrom(x => x.UserID != null))
-            .ForMember(dest => dest.CourseId, opts => opts.MapFrom(x => x.CourseId != null))
-            .ForMember(dest => dest.Comment, opts => opts.MapFrom(x => x.Comment != null))
-            .ForMember(dest => dest.Rating, opts => opts.MapFrom(x => x.Rating != null));
+            .ForMember(dest => dest.UserID, opts => opts.Condition(src => src.UserID != null))
+            .ForMember(dest => dest.CourseId, opts => opts.Condition(src => src.CourseId != null))
+            .ForMember(dest => dest.Comment, opts => opts.Condition(src => src.Comment != null))
+            .ForMember(dest => dest.Rating, opts => opts.Condition(src => src.Rating != null));
 
         CreateMap<UpdateLevelModel, Level>()
-            .ForMember(dest => dest.Name, opts => opts.MapFrom(x => x.Name != null));
-
+            .ForMember(dest => dest.Name, opts => opts.Condition(src => src.Name != null));
 
         CreateMap<UpdateLessonModel, Lesson>()
-            .ForMember(dest => dest.CourseId, opts => opts.MapFrom(x => x.CourseId != null))
-            .ForMember(dest => dest.Title, opts => opts.MapFrom(x => x.Title != null));
-
+            .ForMember(dest => dest.Title, opts => opts.Condition(src => src.Title != null));
 
         CreateMap<UpdateInstructorModel, Instructor>()
-            .ForMember(dest => dest.UserId, opts => opts.MapFrom(x => x.UserId != null))
-            .ForMember(dest => dest.Bio, opts => opts.MapFrom(x => x.Bio != null))
-            .ForMember(dest => dest.Experiance, opts => opts.MapFrom(x => x.Experiance != null));
+            .ForMember(dest => dest.UserId, opts => opts.Condition(src => src.UserId != null))
+            .ForMember(dest => dest.Bio, opts => opts.Condition(src => src.Bio != null))
+            .ForMember(dest => dest.Experiance, opts => opts.Condition(src => src.Experiance != null));
 
         CreateMap<UpdateCourseModel, Course>()
-            .ForMember(dest => dest.Title, opts => opts.MapFrom(x => x.Title != null))
-            .ForMember(dest => dest.CategoryId, opts => opts.MapFrom(x => x.CategoryId != null))
-            .ForMember(dest => dest.LevelId, opts => opts.MapFrom(x => x.LevelId != null))
-            .ForMember(dest => dest.Price, opts => opts.MapFrom(x => x.Price != null));
+            .ForMember(dest => dest.Title, opts => opts.Condition(src => src.Title != null))
+            .ForMember(dest => dest.CategoryId, opts => opts.Condition(src => src.CategoryId != null))
+            .ForMember(dest => dest.LevelId, opts => opts.Condition(src => src.LevelId != null))
+            .ForMember(dest => dest.Price, opts => opts.Condition(src => src.Price != null));
 
         CreateMap<UpdateCategoryModel, Category>()
-            .ForMember(dest => dest.Name, opts => opts.MapFrom(x => x.Name != null));
+            .ForMember(dest => dest.Name, opts => opts.Condition(src => src.Name != null));
+
 
 
     }

@@ -20,7 +20,6 @@ public class CreateInstructorModelValidator : AbstractValidator<CreateInstructor
         RuleFor(x => x.Experiance)
             .GreaterThan(0).WithMessage("Experience must be greater than 0.");
 
-        RuleFor(x => x.ApprovedByAdmin)
-            .Equal(false).WithMessage("Instructor cannot approve themselves.");
+        
     }
 }

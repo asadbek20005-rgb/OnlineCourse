@@ -43,6 +43,23 @@ namespace OnlineCourse.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "otps",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    code = table.Column<int>(type: "integer", nullable: false),
+                    is_expired = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_otps", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "users",
                 columns: table => new
                 {
@@ -55,7 +72,8 @@ namespace OnlineCourse.Infrastructure.Migrations
                     status = table.Column<int>(type: "integer", nullable: false),
                     img_url = table.Column<string>(type: "text", nullable: true),
                     last_login = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    email_confirmation = table.Column<bool>(type: "boolean", nullable: false),
+                    email_confirmation = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_blocked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -71,7 +89,7 @@ namespace OnlineCourse.Infrastructure.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    target_table = table.Column<int>(type: "integer", nullable: false),
+                    target_table = table.Column<string>(type: "text", nullable: false),
                     target_table_id = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -96,7 +114,7 @@ namespace OnlineCourse.Infrastructure.Migrations
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     bio = table.Column<string>(type: "text", nullable: true),
                     expariance_year = table.Column<int>(type: "integer", nullable: false),
-                    approved = table.Column<bool>(type: "boolean", nullable: false),
+                    approved = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -143,7 +161,7 @@ namespace OnlineCourse.Infrastructure.Migrations
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     message = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    is_read = table.Column<bool>(type: "boolean", nullable: false),
+                    is_read = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -152,6 +170,30 @@ namespace OnlineCourse.Infrastructure.Migrations
                     table.PrimaryKey("PK_notifications", x => x.id);
                     table.ForeignKey(
                         name: "FK_notifications_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "refresh_token",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    token = table.Column<string>(type: "text", nullable: false),
+                    expires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    is_revoked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_refresh_token", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_refresh_token_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -191,8 +233,10 @@ namespace OnlineCourse.Infrastructure.Migrations
                     level_id = table.Column<int>(type: "integer", nullable: false),
                     cover_img_url = table.Column<string>(type: "text", nullable: true),
                     price = table.Column<decimal>(type: "numeric", nullable: false),
-                    is_published = table.Column<bool>(type: "boolean", nullable: false),
-                    rating = table.Column<decimal>(type: "numeric", nullable: false),
+                    is_published = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    rating = table.Column<decimal>(type: "numeric", nullable: true),
+                    has_completed = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    approved = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -308,8 +352,10 @@ namespace OnlineCourse.Infrastructure.Migrations
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     amount = table.Column<decimal>(type: "numeric", nullable: false),
                     course_id = table.Column<int>(type: "integer", nullable: false),
-                    is_verified = table.Column<bool>(type: "boolean", nullable: false),
+                    is_verified = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     payment_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    has_paid = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    transaction_id = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -340,6 +386,7 @@ namespace OnlineCourse.Infrastructure.Migrations
                     course_id = table.Column<int>(type: "integer", nullable: false),
                     comment = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     rating = table.Column<int>(type: "integer", nullable: false),
+                    has_reviewed = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -479,9 +526,10 @@ namespace OnlineCourse.Infrastructure.Migrations
                 column: "course_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_enrollements_student_id",
+                name: "IX_enrollements_student_id_course_id",
                 table: "enrollements",
-                column: "student_id");
+                columns: new[] { "student_id", "course_id" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_favourites_course_id",
@@ -489,9 +537,10 @@ namespace OnlineCourse.Infrastructure.Migrations
                 column: "course_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_favourites_user_id",
+                name: "IX_favourites_user_id_course_id",
                 table: "favourites",
-                column: "user_id");
+                columns: new[] { "user_id", "course_id" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_instructors_user_id",
@@ -528,6 +577,11 @@ namespace OnlineCourse.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_payments_user_id",
                 table: "payments",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_refresh_token_user_id",
+                table: "refresh_token",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
@@ -591,7 +645,13 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "notifications");
 
             migrationBuilder.DropTable(
+                name: "otps");
+
+            migrationBuilder.DropTable(
                 name: "payments");
+
+            migrationBuilder.DropTable(
+                name: "refresh_token");
 
             migrationBuilder.DropTable(
                 name: "reviews");

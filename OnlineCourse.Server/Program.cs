@@ -124,6 +124,7 @@ sp.GetRequiredService<IOptions<MinioSettings>>().Value);
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

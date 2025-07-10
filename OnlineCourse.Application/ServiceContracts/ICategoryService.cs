@@ -11,5 +11,7 @@ public interface ICategoryService : IStatusGeneric
     Task CreateAsync(CreateCategoryModel model);
     Task UpdateAsync(int categoryId, UpdateCategoryModel model);
     Task DeleteAsync(int categoryId);
+    Task<int> GetTotalCourseAsync(GetTotalCourseModel model);
+
 
 }

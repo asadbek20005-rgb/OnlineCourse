@@ -9,4 +9,6 @@ public interface INotificationService : IStatusGeneric
     Task<IEnumerable<NotificationDto>> GetForUserAsync(Guid userId);
     Task MarkAsReadAsync(int notificationId);
     Task SendAsync(CreateNotificationModel model);
+    Task MarkAllReadAsync(Guid userId);
+    Task DeleteAsync(int id);
 }

@@ -14,31 +14,13 @@ public class PaymentsController(IPaymentService paymentService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreatePaymentModel model)
     {
-       string res = await _paymentService.InitiateAsync(model);
+        var res = await _paymentService.InitiateAsync(model);
         if (_paymentService.IsValid)
-        {
             return Ok(res);
-        }
 
         _paymentService.CopyToModelState(ModelState);
         return BadRequest(ModelState);
     }
-
-
-    [HttpPost("verify")]
-    public async Task<IActionResult> Verify(int paymentId)
-    {
-        await _paymentService.VerifyAsync(paymentId);
-
-        if (_paymentService.IsValid)
-        {
-            return Ok("Done");
-        }
-
-        _paymentService.CopyToModelState(ModelState);
-        return BadRequest(ModelState);
-    }
-
 
     [HttpGet("history")]
     public async Task<IActionResult> GetHistory(Guid userId)

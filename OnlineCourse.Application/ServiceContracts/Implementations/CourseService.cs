@@ -21,7 +21,9 @@ public class CourseService(
     IValidator<CreateCourseModel> createValidator,
     IValidator<UpdateCourseModel> updateValidator,
     IBaseRepositroy<User> _userRepository,
-    IMinioService _minioService) : StatusGenericHandler, ICourseService
+    IMinioService _minioService,
+    IBaseRepositroy<Student> _studentRepository,
+    IBaseRepositroy<Favourite> _favoriteRepository) : StatusGenericHandler, ICourseService
 {
     private readonly IBaseRepositroy<Course> _courseRepository = courseRepository;
     private readonly IBaseRepositroy<Instructor> _instructorRepositroy = instructorRepository;
@@ -30,6 +32,34 @@ public class CourseService(
     private readonly IMapper _mapper = mapper;
     private readonly IValidator<CreateCourseModel> _createValidator = createValidator;
     private readonly IValidator<UpdateCourseModel> _updateValidator = updateValidator;
+
+    public async Task ApproveAsync(ApproveCourseModel model)
+    {
+        Instructor? instructor = await _instructorRepositroy.GetByIdAsync(model.InstructorId);
+
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {model.InstructorId} is not found");
+            return;
+        }
+
+        Course? course = await _courseRepository.GetAll()
+            .Where(x => x.InstructorId == instructor.Id && x.Id == model.CourseId)
+            .FirstOrDefaultAsync();
+
+
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return;
+        }
+
+
+        course.Approved = true;
+
+        await _courseRepository.UpdateAsync(course);
+        await _courseRepository.SaveChangesAsync();
+    }
     public async Task CreateAsync(CreateCourseModel model)
     {
         var validatorResult = await _createValidator.ValidateAsync(model);
@@ -100,6 +130,43 @@ public class CourseService(
         return _mapper.Map<CourseDto>(course);
     }
 
+    public async Task<int> GetCourseCountByCategoryIdAsync(GetCourseCountByCategoryIdModel model)
+    {
+        Category? category = await _categoryRepository.GetByIdAsync(model.CategoryId);
+
+
+        if (category is null)
+        {
+            AddError($"Category with id: {model.CategoryId} is not found");
+            return 0;
+        }
+
+        return await _courseRepository.GetAll()
+            .Where(x => x.CategoryId == category.Id).CountAsync();
+    }
+
+    public async Task<decimal?> GetCourseRating(GetCourseRatingModel model)
+    {
+        Instructor? instructor = await _instructorRepositroy.GetByIdAsync(model.InstructorId);
+
+        if (instructor is null)
+        {
+            AddError($"Intructor with id: {model.InstructorId} is not found");
+            return 0;
+        }
+
+        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+
+        if (course is null)
+        {
+            AddError($"Course with id: {model.CourseId} is not found");
+            return 0;
+        }
+
+
+        return course.Rating;
+    }
+
     public async Task<IEnumerable<CourseDto>> GetCoursesByCategoryAsync(int categoryId)
     {
         Category? category = await _categoryRepository.GetByIdAsync(categoryId);
@@ -133,6 +200,36 @@ public class CourseService(
         return _mapper.Map<List<CourseDto>>(courses);
     }
 
+    public async Task<IEnumerable<CourseDto>> GetCoursesByLevelAsync(GetCoursesByLevelModel model)
+    {
+        Instructor? instructor = await _instructorRepositroy.GetByIdAsync(model.InstructorId);
+
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {model.InstructorId} is not found");
+            return Enumerable.Empty<CourseDto>();
+        }
+
+        Level? level = await _levelRepository.GetByIdAsync(model.LevelId);
+
+        if (level is null)
+        {
+            AddError($"Level with id: {model.LevelId} is not found");
+            return Enumerable.Empty<CourseDto>();
+        }
+
+
+
+        var courses = await _courseRepository.GetAll()
+            .Where(x => x.LevelId == model.LevelId)
+            .ToListAsync();
+
+
+        return _mapper.Map<List<CourseDto>>(courses);
+
+
+    }
+
     public async Task<IEnumerable<CourseDto>> GetCoursesByPagination(PaginationModel model)
     {
         var query = _courseRepository.GetAll();
@@ -141,6 +238,27 @@ public class CourseService(
 
         return _mapper.Map<List<CourseDto>>(courses);
     }
+
+    public async Task<IEnumerable<CourseDto>> GetCoursesByPriceAsync(GetCoursesByPriceModel model)
+    {
+        Instructor? instructor = await _instructorRepositroy.GetByIdAsync(model.InstructorId);
+
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {model.InstructorId} is not found");
+            return Enumerable.Empty<CourseDto>();
+        }
+
+        var minPrice = Math.Min(model.InitialPrice, model.LastPrice);
+        var maxPrice = Math.Max(model.InitialPrice, model.LastPrice);
+
+        var courses = await _courseRepository.GetAll()
+            .Where(x => x.Price >= minPrice && x.Price <= maxPrice)
+            .ToListAsync();
+
+        return _mapper.Map<List<CourseDto>>(courses);
+    }
+
 
     public async Task<IEnumerable<CourseDto>> GetCoursesTopRatedAsync(int count)
     {
@@ -162,24 +280,92 @@ public class CourseService(
 
     }
 
-    public async Task PublishAsync(PublishModel model)
+    public async Task<IEnumerable<CourseDto>> GetStudenFavoriteCoursesAsync(GetStudentFavoriteCoursesModel model)
     {
-        User? user = await _userRepository.GetByIdAsync(model.UserId);
+        Student? student = await _studentRepository.GetByIdAsync(model.StudentId);
+
+        if (student is null)
+        {
+            AddError($"Student with id: {model.StudentId} is not found");
+            return Enumerable.Empty<CourseDto>();
+        }
+
+        User? user = await _userRepository.GetByIdAsync(student.UserId);
 
         if (user is null)
         {
-            AddError($"User with id: {model.UserId} is not found");
+            AddError($"Student user with id: {student.UserId} is not found");
+            return Enumerable.Empty<CourseDto>();
+        }
+
+        var favoriteCourses = await _favoriteRepository.GetAll()
+            .Where(x => x.UserID == user.Id)
+            .Select(x => x.Course)
+            .ToListAsync();
+
+        return _mapper.Map<List<CourseDto>>(favoriteCourses);
+    }
+
+    public async Task<int> GetTotalCourseCountAsync()
+    {
+        return await _courseRepository.GetAll()
+            .CountAsync();
+    }
+
+    public Task<int> GetTotalStudentInCourse(GetTotalStudentModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task PublishAsync(PublishModel model)
+    {
+        Instructor? instructor = await _instructorRepositroy.GetByIdAsync(model.InstructorId);
+
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {model.InstructorId} is not found");
             return;
         }
 
-        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+        Course? course = await _courseRepository.GetAll()
+            .Where(x => x.InstructorId == instructor.Id && x.Id == model.CourseId)
+            .FirstOrDefaultAsync();
+
+
+
+        if (course is null)
+        {
+            AddError($"Course not found");
+            return;
+        }
+        course.IsPublished = true;
+        await _courseRepository.UpdateAsync(course);
+        await _courseRepository.SaveChangesAsync();
+    }
+
+    public async Task RejectAsync(RejectCourseModel model)
+    {
+        Instructor? instructor = await _instructorRepositroy.GetByIdAsync(model.InstructorId);
+
+        if (instructor is null)
+        {
+            AddError($"Instructor with id: {model.InstructorId} is not found");
+            return;
+        }
+
+        Course? course = await _courseRepository.GetAll()
+                   .Where(x => x.InstructorId == instructor.Id && x.Id == model.CourseId)
+                   .FirstOrDefaultAsync();
 
         if (course is null)
         {
             AddError($"Course with id: {model.CourseId} is not found");
             return;
         }
-        course.IsPublished = true;
+
+
+        course.Approved = false;
+
         await _courseRepository.UpdateAsync(course);
         await _courseRepository.SaveChangesAsync();
     }
@@ -195,15 +381,17 @@ public class CourseService(
 
     public async Task UnPublishAsync(UnPublishModel model)
     {
-        User? user = await _userRepository.GetByIdAsync(model.UserId);
 
-        if (user is null)
+        Instructor? instructor = await _instructorRepositroy.GetByIdAsync(model.InstructorId);
+
+        if (instructor is null)
         {
-            AddError($"User with id: {model.UserId} is not found");
+            AddError($"Instructor with id: {model.InstructorId} is not found");
             return;
         }
-
-        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+        Course? course = await _courseRepository.GetAll()
+                   .Where(x => x.InstructorId == instructor.Id && x.Id == model.CourseId)
+                   .FirstOrDefaultAsync();
 
         if (course is null)
         {
@@ -226,6 +414,7 @@ public class CourseService(
                 AddError($"Validation error: {error.ErrorMessage}");
             }
         }
+
         Course? course = await _courseRepository.GetByIdAsync(courseId);
         if (course is null)
         {
@@ -233,20 +422,28 @@ public class CourseService(
             return;
         }
 
-        Category? category = await _categoryRepository.GetByIdAsync(model.CategoryId);
-
-        if (category is null)
+        if (model.CategoryId.HasValue)
         {
-            AddError($"Category with id: {model.CategoryId} is not found");
-            return;
+            Category? category = await _categoryRepository.GetByIdAsync(model.CategoryId);
+            if (category is null)
+            {
+                AddError($"Category with id: {model.CategoryId} is not found");
+                return;
+            }
+
         }
 
-        Level? level = await _levelRepository.GetByIdAsync(model.LevelId);
-
-        if (level is null)
+        if (model.LevelId.HasValue)
         {
-            AddError($"Level with id: {model.LevelId} is not found");
-            return;
+
+            Level? level = await _levelRepository.GetByIdAsync(model.LevelId);
+
+            if (level is null)
+            {
+                AddError($"Level with id: {model.LevelId} is not found");
+                return;
+            }
+
         }
 
         Course updatedCourse = _mapper.Map(model, course);
@@ -267,15 +464,18 @@ public class CourseService(
 
     public async Task UploadImg(UploadCourseImgModel model)
     {
-        User? user = await _userRepository.GetByIdAsync(model.UserId);
 
-        if (user is null)
+        Instructor? instructor = await _instructorRepositroy.GetByIdAsync(model.InstructorId);
+
+        if (instructor is null)
         {
-            AddError($"User with id: {model.UserId} is not found");
+            AddError($"Instructor with id: {model.InstructorId} is not found");
             return;
         }
 
-        Course? course = await _courseRepository.GetByIdAsync(model.CourseId);
+        Course? course = await _courseRepository.GetAll()
+    .Where(x => x.InstructorId == instructor.Id && x.Id == model.CourseId)
+    .FirstOrDefaultAsync();
 
         if (course is null)
         {
@@ -308,8 +508,5 @@ public class CourseService(
 
         return (fileName, contentType, size, data);
     }
-
-
-
 
 }

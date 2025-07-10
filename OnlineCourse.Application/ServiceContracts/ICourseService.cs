@@ -1,4 +1,5 @@
 using OnlineCourse.Application.Dtos;
+using OnlineCourse.Application.Models.Category;
 using OnlineCourse.Application.Models.Course;
 using OnlineCourse.Application.Models.Pagination;
 using StatusGeneric;
@@ -22,5 +23,13 @@ public interface ICourseService : IStatusGeneric
     Task<IEnumerable<CourseDto>> GetCoursesByPagination(PaginationModel model);
     Task UploadImg(UploadCourseImgModel model);
     Task UnPublishAsync(UnPublishModel model);
-    
+    Task<decimal?> GetCourseRating(GetCourseRatingModel model);
+    Task ApproveAsync(ApproveCourseModel model);
+    Task RejectAsync(RejectCourseModel model);
+    Task<IEnumerable<CourseDto>> GetCoursesByPriceAsync(GetCoursesByPriceModel model);
+    Task<IEnumerable<CourseDto>> GetCoursesByLevelAsync(GetCoursesByLevelModel model);
+    Task<int> GetTotalStudentInCourse(GetTotalStudentModel model);
+    Task<int> GetTotalCourseCountAsync();
+    Task<int> GetCourseCountByCategoryIdAsync(GetCourseCountByCategoryIdModel model);
+    Task<IEnumerable<CourseDto>> GetStudenFavoriteCoursesAsync(GetStudentFavoriteCoursesModel model);
 }

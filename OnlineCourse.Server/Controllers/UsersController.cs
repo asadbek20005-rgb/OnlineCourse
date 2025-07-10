@@ -1,4 +1,3 @@
-using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourse.Application.Extensions;
 using OnlineCourse.Application.Models.User;
@@ -100,39 +99,50 @@ public class UsersController(IUserService userService) : ControllerBase
     }
 
 
-    [HttpPost("{userId:guid}/avatar")]
+    [HttpPost("{userId:guid}/img")]
     public async Task<IActionResult> UploadImg(Guid userId, IFormFile file)
     {
-        return Ok("soon...");
-    }
+        await _userService.UploadImgAsync(userId, file);
 
-    [HttpPut("{userId:guid}/deactivate")]
-    public async Task<IActionResult> Deactivate(Guid userId)
-    {
-        return Ok("soon...");
+        if (_userService.IsValid)
+        {
+            return Ok("Done");
+        }
+
+        _userService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
     }
 
 
     [HttpGet("me")]
-    public async Task<IActionResult> GetMyProfile()
+    public async Task<IActionResult> GetMyProfile(Guid userId)
     {
-        return Ok("soon...");
+        var user = await _userService.GetUserProfileAsync(userId);
+
+        if (_userService.IsValid)
+        {
+            return Ok(user);
+        }
+
+        _userService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
 
     }
 
 
     [HttpPut("me")]
-    public async Task<IActionResult> UpdateMyProfile()
+    public async Task<IActionResult> UpdateMyProfile(Guid userId, UpdateUserModel model)
     {
-        return Ok("soon...");
+        await _userService.UpdateProfileAsync(userId, model);
+
+        if (_userService.IsValid)
+        {
+            return Ok("Done");
+        }
+
+        _userService.CopyToModelState(ModelState);
+        return BadRequest(ModelState);
 
     }
 
-
-    [HttpPut("me/change-password")]
-    public async Task<IActionResult> ChangePassword()
-    {
-        return Ok("soon...");
-
-    }
 }

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Notification;
 using OnlineCourse.Application.RepositoryContracts;
-using OnlineCourse.Application.Validators.Review;
 using OnlineCourse.Domain.Entities;
 using StatusGeneric;
 
@@ -21,6 +20,19 @@ public class NotificationService(
     private readonly IMapper _mapper = mapper;
     private readonly IValidator<CreateNotificationModel> _validator = validator;
 
+    public async Task DeleteAsync(int id)
+    {
+        Notification? notification = await _notificationRepository.GetByIdAsync(id);
+
+        if (notification is null)
+        {
+            AddError($"Notification with id: {id} is not found");
+            return;
+        }
+
+        await _notificationRepository.DeleteAsync(notification);
+        await _notificationRepository.SaveChangesAsync();
+    }
 
     public async Task<IEnumerable<NotificationDto>> GetForUserAsync(Guid userId)
     {
@@ -42,6 +54,26 @@ public class NotificationService(
         }
 
         return _mapper.Map<List<NotificationDto>>(userNotifications);
+    }
+
+    public async Task MarkAllReadAsync(Guid userId)
+    {
+        User? user = await _userRepository.GetByIdAsync(userId);
+
+        if (user is null)
+        {
+            AddError($"User with id: {userId} is not found");
+            return;
+        }
+
+
+        var notifications = await _notificationRepository.GetAll()
+            .Where(x => x.UserID == user.Id).ToListAsync();
+
+        foreach (var notification in notifications)
+        {
+            notification.IsRead = true;
+        }
     }
 
     public async Task MarkAsReadAsync(int notificationId)

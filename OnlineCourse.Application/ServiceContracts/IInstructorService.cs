@@ -13,4 +13,9 @@ public interface IInstructorService : IStatusGeneric
     Task<IEnumerable<InstructorDto>> GetAllInstructorAsync();
     Task<IEnumerable<CourseDto>> GetAllCourseAsync(int instructorId);
     Task<int> GetCourseCountAsync(int instructorId);
+    Task DeleteAsync(int id);
+
+    Task<int> GetTotalInstructorsCountAsync();
+
+
 }
