@@ -14,14 +14,7 @@ public class ReviewsController(IReviewService reviewService,
     private readonly IReviewService _reviewService = reviewService;
     private readonly ICourseService _courseService = courseService;
 
-    //[HttpGet]
-    //public async Task<IActionResult> GetAll(int courseId)
-    //{
-    //    //var reviews =  _reviewService.GetByCourse(courseId);
-
-    //    return Ok("soon...");
-    //}
-
+    
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateReviewModel model)
@@ -86,9 +79,5 @@ public class ReviewsController(IReviewService reviewService,
     }
 
 
-    //[HttpGet("api/v1/Courses/course-id/rating")]
-    //public async Task<IActionResult> GetRating()
-    //{
-    //    return Ok("soon...");
-    //}
+
 }

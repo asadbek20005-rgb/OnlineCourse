@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourse.Application.Extensions;
 using OnlineCourse.Application.Models.User;
@@ -13,6 +14,7 @@ public class UsersController(IUserService userService) : ControllerBase
 {
     private readonly IUserService _userService = userService;
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
@@ -27,7 +29,7 @@ public class UsersController(IUserService userService) : ControllerBase
         return BadRequest(ModelState);
     }
 
-
+    [Authorize(Roles = "Admin")]
     [HttpGet("{userId:guid}")]
     public async Task<IActionResult> GetUserById(Guid userId)
     {
@@ -40,7 +42,7 @@ public class UsersController(IUserService userService) : ControllerBase
         _userService.CopyToModelState(ModelState);
         return BadRequest(ModelState);
     }
-
+    [Authorize(Roles = "Admin")]
     [HttpPut("{userId:guid}")]
     public async Task<IActionResult> UpdateUser(Guid userId, UpdateUserModel model)
     {
@@ -55,6 +57,7 @@ public class UsersController(IUserService userService) : ControllerBase
     }
 
     [HttpDelete("{userId:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUser(Guid userId)
     {
         await _userService.DeleteAsync(userId);
@@ -67,7 +70,7 @@ public class UsersController(IUserService userService) : ControllerBase
         return BadRequest(ModelState);
     }
 
-
+    [Authorize(Roles = "Admin")]
     [HttpPut("{userId:guid}/role")]
     public async Task<IActionResult> ChangeRole(Guid userId, UserRole newRole)
     {
@@ -84,7 +87,7 @@ public class UsersController(IUserService userService) : ControllerBase
 
 
 
-
+    [Authorize(Roles = "Admin")]
     [HttpPut("{userId:guid}/status")]
     public async Task<IActionResult> ChangeStatus(Guid userId, UserStatus newStatus)
     {
@@ -113,7 +116,7 @@ public class UsersController(IUserService userService) : ControllerBase
         return BadRequest(ModelState);
     }
 
-
+    [Authorize(Roles = "Instructor, Student")]
     [HttpGet("me")]
     public async Task<IActionResult> GetMyProfile(Guid userId)
     {
@@ -129,7 +132,7 @@ public class UsersController(IUserService userService) : ControllerBase
 
     }
 
-
+    [Authorize(Roles = "Instructor, Student")]
     [HttpPut("me")]
     public async Task<IActionResult> UpdateMyProfile(Guid userId, UpdateUserModel model)
     {

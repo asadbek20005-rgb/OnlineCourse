@@ -65,5 +65,5 @@ public class User : Date
 
 
 
-public enum UserRole { Admin, Instructor, Student }
+public enum UserRole { Admin = 0, Instructor, Student }
 public enum UserStatus { Active, Deactivated }

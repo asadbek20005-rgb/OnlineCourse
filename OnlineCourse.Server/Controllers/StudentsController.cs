@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourse.Application.Extensions;
 using OnlineCourse.Application.Models.Student;
@@ -7,6 +8,7 @@ namespace OnlineCourse.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize("Student")]
 public class StudentsController(IStudentService _studentService) : ControllerBase
 {
     [HttpGet("student-id")]
@@ -32,17 +34,6 @@ public class StudentsController(IStudentService _studentService) : ControllerBas
         return BadRequest(ModelState);
     }
 
-    //[HttpPut("student-id/Progresses/progress-id")]
-    //public async Task<IActionResult> UpdateStudentProgresses(UpdateProgressModel model)
-    //{
-    //    await _studentService.UpdateProgressAsync(model);
-
-    //    if (_studentService.IsValid)
-    //        return Ok("Done");
-
-    //    _studentService.CopyToModelState(ModelState);
-    //    return BadRequest(ModelState);
-    //}
 
     [HttpPost("student-id/Courses/course-id/Lessons")]
     public async Task<IActionResult> GetLessons(GetLessonsByCourseRequestModel model)
@@ -68,20 +59,11 @@ public class StudentsController(IStudentService _studentService) : ControllerBas
         return BadRequest(ModelState);
     }
 
-    //[HttpGet("student-id/Courses/favorite")]
-    //public async Task<IActionResult> GetFavouriteCouress(int id)
-    //{
-    //    var courses = await _studentService.GetFavoriteCoursesAsync(id);
-
-    //    if (_studentService.IsValid)
-    //        return Ok(courses);
-
-    //    _studentService.CopyToModelState(ModelState);
-    //    return BadRequest(ModelState);
-    //}
 
 
-    [HttpGet("active-count")]
+
+    [HttpGet("/api/v1/Students/active-count")]
+    [Authorize(Roles ="Admin")]
     public async Task<IActionResult> GetStudentsCount()
     {
         int count = await _studentService.GetActiveStudentCountAsync();
@@ -96,6 +78,7 @@ public class StudentsController(IStudentService _studentService) : ControllerBas
 
 
     [HttpPost("/api/v1/Courses/course-id/students-count")]
+    [Authorize(Roles ="Admin")]
     public async Task<IActionResult> GetStudentsCountByCourseId(GetStudentsByCourseIdModel model)
     {
         int count = await _studentService.GetTotalStudentsCountByCourseId(model);
@@ -109,6 +92,7 @@ public class StudentsController(IStudentService _studentService) : ControllerBas
 
 
     [HttpPost("/api/v1/Instructors/intructor-id/students-count")]
+    [Authorize(Roles ="Admin, Instructor")]
     public async Task<IActionResult> GetStudentsCountByInstructorId(GetInstructorStudentsCount model)
     {
         int count = await _studentService.GetStudentsCountByInstructorIdAsync(model);
@@ -121,6 +105,7 @@ public class StudentsController(IStudentService _studentService) : ControllerBas
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin, Instructor")]
     public async Task<IActionResult> Create(CreateStudentModel model)
     {
         await _studentService.CreateAsync(model);
