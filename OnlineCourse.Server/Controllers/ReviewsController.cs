@@ -14,13 +14,13 @@ public class ReviewsController(IReviewService reviewService,
     private readonly IReviewService _reviewService = reviewService;
     private readonly ICourseService _courseService = courseService;
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll(int courseId)
-    {
-        //var reviews =  _reviewService.GetByCourse(courseId);
+    //[HttpGet]
+    //public async Task<IActionResult> GetAll(int courseId)
+    //{
+    //    //var reviews =  _reviewService.GetByCourse(courseId);
 
-        return Ok("soon...");
-    }
+    //    return Ok("soon...");
+    //}
 
 
     [HttpPost]
@@ -86,9 +86,9 @@ public class ReviewsController(IReviewService reviewService,
     }
 
 
-    [HttpGet("api/v1/Courses/course-id/rating")]
-    public async Task<IActionResult> GetRating()
-    {
-        return Ok("soon...");
-    }
+    //[HttpGet("api/v1/Courses/course-id/rating")]
+    //public async Task<IActionResult> GetRating()
+    //{
+    //    return Ok("soon...");
+    //}
 }

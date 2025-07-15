@@ -59,6 +59,7 @@ public class User : Date
 
     [Column("is_blocked")]
     public bool IsBlocked { get; set; } = false; 
+    public virtual ICollection<Blog>? Blogs { get; set; }
 
 }
 

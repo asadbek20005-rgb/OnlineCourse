@@ -1,4 +1,5 @@
 using FluentValidation;
+using OnlineCourse.Application.Validators.Blog;
 using OnlineCourse.Application.Validators.Category;
 using OnlineCourse.Application.Validators.Comment;
 using OnlineCourse.Application.Validators.Course;
@@ -66,7 +67,9 @@ public static class ValidationConfigurations
         // Category
         builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryModelValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<UpdateCategoryModelValidator>();
-
+        // Blog
+        builder.Services.AddValidatorsFromAssemblyContaining<CreateBlogValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<UpdateBlogModelValidator>();
 
 
 

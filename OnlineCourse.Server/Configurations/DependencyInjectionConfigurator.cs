@@ -30,6 +30,7 @@ public static class DependencyInjectionConfigurator
         services.AddScoped<IEmailSenderService, EmailSenderService>();
         services.AddScoped<IRedisService, RedisService>();
         services.AddScoped<IMinioService, MinioService>();
+        services.AddScoped<IBlogService, BlogService>();
         return services;
     }
 }

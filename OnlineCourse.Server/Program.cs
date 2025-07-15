@@ -17,8 +17,6 @@ using System.Net.Mail;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-builder.WebHost.UseUrls($"http://*:{port}");
 
 // Add services to the container.
 
@@ -96,16 +94,15 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
     options.ApiVersionReader = new UrlSegmentApiVersionReader();
 });
-
-
-
+var smtpPortStr = builder.Configuration["EmailSettings:SmtpPort"];
+int smtpPort = string.IsNullOrWhiteSpace(smtpPortStr) ? 5122 : int.Parse(smtpPortStr);
 
 builder.Services
     .AddFluentEmail(builder.Configuration["EmailSettings:FromEmail"])
     .AddRazorRenderer()
     .AddSmtpSender(new SmtpClient(builder.Configuration["EmailSettings:SmtpHost"])
     {
-        Port = int.Parse(builder.Configuration["EmailSettings:SmtpPort"]),
+        Port = smtpPort,
         Credentials = new NetworkCredential(
             builder.Configuration["EmailSettings:SmtpUser"],
             builder.Configuration["EmailSettings:SmtpPass"]),
@@ -130,12 +127,12 @@ builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsProduction() || app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+    
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

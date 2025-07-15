@@ -1,5 +1,6 @@
 using AutoMapper;
 using OnlineCourse.Application.Dtos;
+using OnlineCourse.Application.Models.Blog;
 using OnlineCourse.Application.Models.Category;
 using OnlineCourse.Application.Models.Comment;
 using OnlineCourse.Application.Models.Course;
@@ -44,7 +45,7 @@ public class AutoMapperProfile : Profile
         CreateMap<Favourite, FavouriteDto>();
         CreateMap<Lesson, LessonDto>();
         CreateMap<Student, StudentDto>();
-
+        CreateMap<CreateBlogModel, Blog>();
 
         CreateMap<UpdateUserModel, User>()
             .ForMember(dest => dest.FullName, opts => opts.Condition(src => src.FullName != null))
@@ -81,6 +82,12 @@ public class AutoMapperProfile : Profile
 
         CreateMap<UpdateCategoryModel, Category>()
             .ForMember(dest => dest.Name, opts => opts.Condition(src => src.Name != null));
+
+        CreateMap<UpdateBlogModel, Blog>()
+                        .ForMember(dest => dest.Title, opts => opts.Condition(src => src.Title != null))
+                    .ForMember(dest => dest.Details, opts => opts.Condition(src => src.Details != null))
+                    .ForMember(dest => dest.ImgUrl, opts => opts.Condition(src => src.ImgUrl != null))
+                    .ForMember(dest => dest.UserId, opts => opts.Condition(src => src.UserId != null));
 
 
 

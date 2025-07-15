@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OnlineCourse.Infrastructure.Contexts;
@@ -11,9 +12,11 @@ using OnlineCourse.Infrastructure.Contexts;
 namespace OnlineCourse.Infrastructure.Migrations
 {
     [DbContext(typeof(OnlineCourseDbContext))]
-    partial class OnlineCourseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250711051229_Second")]
+    partial class Second
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -883,7 +886,7 @@ namespace OnlineCourse.Infrastructure.Migrations
             modelBuilder.Entity("OnlineCourse.Domain.Entities.Blog", b =>
                 {
                     b.HasOne("OnlineCourse.Domain.Entities.User", "User")
-                        .WithMany("Blogs")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1171,8 +1174,6 @@ namespace OnlineCourse.Infrastructure.Migrations
 
             modelBuilder.Entity("OnlineCourse.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Blogs");
-
                     b.Navigation("Instructor");
 
                     b.Navigation("Notification");

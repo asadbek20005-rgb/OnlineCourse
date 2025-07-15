@@ -25,7 +25,6 @@ public class CustomExceptionFilter(ILogger<CustomExceptionFilter> logger,
             ? new
             {
                 Message = message,
-                StackTrace = context.Exception.StackTrace
             }
             :
             new

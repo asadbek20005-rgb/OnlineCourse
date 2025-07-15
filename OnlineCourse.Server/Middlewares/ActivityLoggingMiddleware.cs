@@ -37,7 +37,7 @@ public class ActivityLoggingMiddleware
 
                 if (context.Request.RouteValues.TryGetValue("controller", out var controller))
                 {
-                    targetTableStr = controller.ToString();
+                    targetTableStr = controller!.ToString()!;
                 }
 
                 if (context.Request.RouteValues.TryGetValue("id", out var id))

@@ -32,6 +32,12 @@ public class Comment : Base
     [ForeignKey(nameof(ParentCommentId))]
     public virtual Comment? ParentComment { get; set; }
 
-    public virtual ICollection<Comment>? Replies { get; set; } 
+    public virtual ICollection<Comment>? Replies { get; set; }
+
+    [Column("blog_id")]
+    public int BlogId { get; set; }
+
+    [ForeignKey(nameof(BlogId))]
+    public virtual Blog Blog { get; set; }
 
 }

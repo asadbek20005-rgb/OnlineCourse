@@ -12,20 +12,20 @@ public class EnrollmentsController(IStudentService studentService) : ControllerB
 {
     private readonly IStudentService _studentService = studentService;
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllEnrollments()
-    {
-        return Ok("soon...");
-    }
+    //[HttpGet]
+    //public Task<IActionResult> GetAllEnrollments()
+    //{
+    //    return Ok();
+    //}
 
-    [HttpGet("Courses")]
-    public async Task<IActionResult> GetAllCourses()
-    {
-        //var courses = await _studentService.GetEnrolledCourses();
+    //[HttpGet("Courses")]
+    //public async Task<IActionResult> GetAllCourses()
+    //{
+    //    //var courses = await _studentService.GetEnrolledCourses();
 
-        return Ok("soon...");
+    //    return Ok("soon...");
 
-    }
+    //}
 
     [HttpDelete("unenroll")]
     public async Task<IActionResult> DeleteStudent(UnEnrollModel model)
