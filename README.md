@@ -1,7 +1,5 @@
 # OnlineCourse
 This project was developed as part of an online .NET course to practice full-stack web development using ASP.NET Core, C#, and Entity Framework Core.
-# Project Goal
-To build a fully functional task manager app where users can manage their daily tasks — add, edit, delete, and mark them as completed. This project helped me practice authentication, database handling, and clean coding techniques.
 # Technologies Used
 - ASP.NET Core  
 - Entity Framework Core  
