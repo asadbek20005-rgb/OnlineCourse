@@ -77,9 +77,6 @@ public class UserService(
     {
         int code = await _redisService.GetAsync<int>(model.Email);
 
-
-
-
         if (code != model.Code)
         {
             AddError($"Code {model.Code} or email {model.Email} is invalid");
@@ -102,12 +99,8 @@ public class UserService(
             IsExpired = true
         };
 
-
-
         await _otpRepository.AddAsync(newOtp);
         await _otpRepository.SaveChangesAsync();
-
-
 
         User? user = await _redisService.GetAsync<User>("user");
 

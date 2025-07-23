@@ -8,6 +8,7 @@ using OnlineCourse.Application.Models.Minio;
 using OnlineCourse.Infrastructure.Contexts;
 using OnlineCourse.Server.Configurations;
 using OnlineCourse.Server.Filters;
+using OnlineCourse.Server.Middlewares;
 using Serilog;
 using Serilog.Sinks.PostgreSQL;
 using StackExchange.Redis;
@@ -132,7 +133,9 @@ if (app.Environment.IsProduction() || app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-    
+   
+
+app.UseMiddleware<RequestTimingMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

@@ -19,7 +19,7 @@ public class TokenService(IConfiguration configuration) : ITokenService
         rng.GetBytes(randomBytes);
         return Convert.ToBase64String(randomBytes);
     }
-
+        
     public string GenerateToken(User user)
     {
         var signingKey = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_model.SecurityKey)), SecurityAlgorithms.HmacSha256);

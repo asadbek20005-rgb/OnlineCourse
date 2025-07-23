@@ -31,7 +31,7 @@ public class ActivityLoggingMiddleware
             var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (Guid.TryParse(userIdClaim, out var userId) && userId != Guid.Empty)
-            {
+            {   
                 string targetTableStr = "Unknown";
                 string targetTableId = "";
 
