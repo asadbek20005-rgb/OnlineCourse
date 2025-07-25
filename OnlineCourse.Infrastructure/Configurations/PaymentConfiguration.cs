@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Minio.DataModel.Notification;
 using OnlineCourse.Domain.Entities;
 
 namespace OnlineCourse.Infrastructure.Configurations;
@@ -10,6 +11,8 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
     {
         builder.ToTable("payments");
 
+        builder.Property(e => e.Amount)
+              .HasPrecision(18, 2);
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).HasColumnName("id");
 

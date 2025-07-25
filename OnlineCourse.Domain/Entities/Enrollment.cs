@@ -15,7 +15,7 @@ public class Enrollment : Base
     [Column("course_id")]
     [Required]
     public int CourseId { get; set; }
-    [ForeignKey(nameof(CourseId))]  
+    [ForeignKey(nameof(CourseId))]      
     public virtual Course? Course { get; set; }
     [Column("enrolled_at")]
     [Required]

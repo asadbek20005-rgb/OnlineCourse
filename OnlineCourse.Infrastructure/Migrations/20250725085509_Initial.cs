@@ -1,6 +1,5 @@
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,11 +15,11 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "categories",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,11 +30,11 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "levels",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,13 +45,13 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "otps",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    code = table.Column<int>(type: "integer", nullable: false),
-                    is_expired = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    code = table.Column<int>(type: "int", nullable: false),
+                    is_expired = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,19 +62,19 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "users",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    full_name = table.Column<string>(type: "character varying(70)", maxLength: 70, nullable: false),
-                    email = table.Column<string>(type: "text", nullable: false),
-                    username = table.Column<string>(type: "text", nullable: false),
-                    password_hash = table.Column<string>(type: "text", nullable: false),
-                    role = table.Column<int>(type: "integer", nullable: false),
-                    status = table.Column<int>(type: "integer", nullable: false),
-                    img_url = table.Column<string>(type: "text", nullable: true),
-                    last_login = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    email_confirmation = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    is_blocked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    full_name = table.Column<string>(type: "nvarchar(70)", maxLength: 70, nullable: false),
+                    email = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    password_hash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    role = table.Column<int>(type: "int", nullable: false),
+                    status = table.Column<int>(type: "int", nullable: false),
+                    img_url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    last_login = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    email_confirmation = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    is_blocked = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -86,13 +85,13 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "activity_logs",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    target_table = table.Column<string>(type: "text", nullable: false),
-                    target_table_id = table.Column<string>(type: "text", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    target_table = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    target_table_id = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -106,17 +105,41 @@ namespace OnlineCourse.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "blogs",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    details = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    img_url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_blogs", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_blogs_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "instructors",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    bio = table.Column<string>(type: "text", nullable: true),
-                    expariance_year = table.Column<int>(type: "integer", nullable: false),
-                    approved = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    expariance_year = table.Column<int>(type: "int", nullable: false),
+                    approved = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -133,13 +156,13 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "logs",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    action = table.Column<int>(type: "integer", nullable: false),
-                    id_address = table.Column<string>(type: "text", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    action = table.Column<int>(type: "int", nullable: false),
+                    id_address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -156,14 +179,14 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "notifications",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    title = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    message = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    is_read = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    message = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    is_read = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -180,14 +203,14 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "refresh_token",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    token = table.Column<string>(type: "text", nullable: false),
-                    expires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    is_revoked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    token = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    expires = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    is_revoked = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -204,11 +227,11 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "students",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -225,20 +248,20 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "courses",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    instructor_id = table.Column<int>(type: "integer", nullable: false),
-                    title = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    category_id = table.Column<int>(type: "integer", nullable: false),
-                    level_id = table.Column<int>(type: "integer", nullable: false),
-                    cover_img_url = table.Column<string>(type: "text", nullable: true),
-                    price = table.Column<decimal>(type: "numeric", nullable: false),
-                    is_published = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    rating = table.Column<decimal>(type: "numeric", nullable: true),
-                    has_completed = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    approved = table.Column<bool>(type: "boolean", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    instructor_id = table.Column<int>(type: "int", nullable: false),
+                    title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    category_id = table.Column<int>(type: "int", nullable: false),
+                    level_id = table.Column<int>(type: "int", nullable: false),
+                    cover_img_url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    is_published = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    rating = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true),
+                    has_completed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    approved = table.Column<bool>(type: "bit", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -267,13 +290,13 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "enrollements",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    student_id = table.Column<int>(type: "integer", nullable: false),
-                    course_id = table.Column<int>(type: "integer", nullable: false),
-                    enrolled_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    student_id = table.Column<int>(type: "int", nullable: false),
+                    course_id = table.Column<int>(type: "int", nullable: false),
+                    enrolled_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -289,19 +312,19 @@ namespace OnlineCourse.Infrastructure.Migrations
                         column: x => x.student_id,
                         principalTable: "students",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "favourites",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    course_id = table.Column<int>(type: "integer", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    course_id = table.Column<int>(type: "int", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -324,13 +347,13 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "lesson",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    course_id = table.Column<int>(type: "integer", nullable: false),
-                    title = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    video_url = table.Column<string>(type: "text", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    course_id = table.Column<int>(type: "int", nullable: false),
+                    title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    video_url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -347,17 +370,17 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "payments",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    amount = table.Column<decimal>(type: "numeric", nullable: false),
-                    course_id = table.Column<int>(type: "integer", nullable: false),
-                    is_verified = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    payment_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    has_paid = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    transaction_id = table.Column<string>(type: "text", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    course_id = table.Column<int>(type: "int", nullable: false),
+                    is_verified = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    payment_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    has_paid = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    transaction_id = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -380,15 +403,15 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "reviews",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    course_id = table.Column<int>(type: "integer", nullable: false),
-                    comment = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    rating = table.Column<int>(type: "integer", nullable: false),
-                    has_reviewed = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    course_id = table.Column<int>(type: "int", nullable: false),
+                    comment = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    rating = table.Column<int>(type: "int", nullable: false),
+                    has_reviewed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -411,18 +434,25 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "comments",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    lesson_id = table.Column<int>(type: "integer", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    text = table.Column<string>(type: "text", nullable: false),
-                    parent_comment_id = table.Column<int>(type: "integer", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    lesson_id = table.Column<int>(type: "int", nullable: false),
+                    user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    text = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    parent_comment_id = table.Column<int>(type: "int", nullable: true),
+                    blog_id = table.Column<int>(type: "int", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_comments", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_comments_blogs_blog_id",
+                        column: x => x.blog_id,
+                        principalTable: "blogs",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_comments_comments_parent_comment_id",
                         column: x => x.parent_comment_id,
@@ -446,15 +476,15 @@ namespace OnlineCourse.Infrastructure.Migrations
                 name: "student_progress",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    student_id = table.Column<int>(type: "integer", nullable: false),
-                    course_id = table.Column<int>(type: "integer", nullable: false),
-                    lesson_id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    student_id = table.Column<int>(type: "int", nullable: false),
+                    course_id = table.Column<int>(type: "int", nullable: false),
+                    lesson_id = table.Column<int>(type: "int", nullable: false),
                     progress_percent = table.Column<float>(type: "real", nullable: false),
-                    completed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    completed_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -485,10 +515,20 @@ namespace OnlineCourse.Infrastructure.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_blogs_user_id",
+                table: "blogs",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_categories_name",
                 table: "categories",
                 column: "name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_comments_blog_id",
+                table: "comments",
+                column: "blog_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_comments_lesson_id",
@@ -658,6 +698,9 @@ namespace OnlineCourse.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "student_progress");
+
+            migrationBuilder.DropTable(
+                name: "blogs");
 
             migrationBuilder.DropTable(
                 name: "lesson");

@@ -45,7 +45,11 @@ builder.Services.AddApiVersioning(options =>
 
 builder.Services.AddDbContext<OnlineCourseDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefualtConnection"));
+
+    //options.UseSqlServer(builder.Configuration.GetConnectionString("Connection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.EnableDetailedErrors(true);
+    options.EnableSensitiveDataLogging(true);
 });
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
@@ -126,14 +130,20 @@ StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
-
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<OnlineCourseDbContext>();
+    if (dbContext.Database.IsRelational())
+    {
+        dbContext.Database.Migrate();
+    }
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsProduction() || app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-   
 
 app.UseMiddleware<RequestTimingMiddleware>();
 app.UseHttpsRedirection();
@@ -141,5 +151,12 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.Map("/health", appBuilder =>
+{
+    appBuilder.Run(async context =>
+    {
+        await context.Response.WriteAsync("Healthy");
+    });
+});
 
 app.Run();

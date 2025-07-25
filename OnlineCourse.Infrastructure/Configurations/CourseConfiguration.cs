@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Minio.DataModel.Notification;
 using OnlineCourse.Domain.Entities;
 
 namespace OnlineCourse.Infrastructure.Configurations;
@@ -9,6 +10,11 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
     public void Configure(EntityTypeBuilder<Course> builder)
     {
         builder.ToTable("courses");
+        builder.Property(e => e.Price)
+             .HasPrecision(18, 2); 
+
+        builder.Property(e => e.Rating)
+              .HasPrecision(5, 2);
 
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id).HasColumnName("id");
