@@ -12,8 +12,8 @@ using OnlineCourse.Infrastructure.Contexts;
 namespace OnlineCourse.Infrastructure.Migrations
 {
     [DbContext(typeof(OnlineCourseDbContext))]
-    [Migration("20250725085509_Initial")]
-    partial class Initial
+    [Migration("20250725110740_Initial2")]
+    partial class Initial2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

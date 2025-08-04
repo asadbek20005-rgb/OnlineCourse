@@ -16,4 +16,4 @@ public interface IAuthService : IStatusGeneric
     Task<UserDto> GetCurrentUserAsync(string accessToken);
     Task ResetPassword(ResetPasswordModel model);
     Task<ForgotPasswordResponse?> ForgotPassword(string myEmail);
-}
+}   

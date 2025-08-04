@@ -30,13 +30,11 @@ public class FavouriteConfiguration : IEntityTypeConfiguration<Favourite>
 
         builder.HasOne(f => f.User)
             .WithMany()
-            .HasForeignKey(f => f.UserID)
-            .OnDelete(DeleteBehavior.Cascade);
-
+            .HasForeignKey(f => f.UserID);
         builder.HasOne(f => f.Course)
             .WithMany(c => c.Favourites)
             .HasForeignKey(f => f.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         builder.HasIndex(f => new { f.UserID, f.CourseId }).IsUnique();
     }

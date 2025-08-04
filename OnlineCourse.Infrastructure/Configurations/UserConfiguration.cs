@@ -57,17 +57,17 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasOne(u => u.Instructor)
             .WithOne(i => i.User)
             .HasForeignKey<Instructor>(i => i.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(u => u.Student)
             .WithOne(s => s.User)
             .HasForeignKey<Student>(s => s.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(u => u.Notification)
             .WithOne(n => n.User)
             .HasForeignKey(n => n.UserID)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
     }
 }

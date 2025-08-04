@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using OnlineCourse.Application.Mapster;
 using OnlineCourse.Application.Models.Minio;
 using OnlineCourse.Infrastructure.Contexts;
 using OnlineCourse.Server.Configurations;
 using OnlineCourse.Server.Filters;
-using OnlineCourse.Server.Middlewares;
 using Serilog;
 using Serilog.Sinks.PostgreSQL;
 using StackExchange.Redis;
@@ -27,8 +27,11 @@ builder.Services.AddControllers(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+});
+//builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 builder.Services.AddVersionedApiExplorer(options =>
 {
     options.GroupNameFormat = "'v'VVV";
@@ -46,10 +49,9 @@ builder.Services.AddApiVersioning(options =>
 builder.Services.AddDbContext<OnlineCourseDbContext>(options =>
 {
 
-    //options.UseSqlServer(builder.Configuration.GetConnectionString("Connection"));
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.EnableDetailedErrors(true);
-    options.EnableSensitiveDataLogging(true);
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Connection"));
+    //options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+
 });
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
@@ -69,6 +71,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("policy",
+        p =>
+        {
+            p.AllowAnyOrigin();
+            p.AllowAnyHeader();
+            p.AllowAnyMethod();
+            
+        });
+
+});
 
 var columnWriters = new Dictionary<string, ColumnWriterBase>
 {
@@ -127,27 +141,39 @@ sp.GetRequiredService<IOptions<MinioSettings>>().Value);
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
+builder.Services.AddDistributedMemoryCache(); // In-memory
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
+app.UseSession();
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<OnlineCourseDbContext>();
     if (dbContext.Database.IsRelational())
     {
-        dbContext.Database.Migrate();
+            dbContext.Database.Migrate();
     }
 }
 // Configure the HTTP request pipeline.
-if (app.Environment.IsProduction() || app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Environment.IsProduction())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    });
 }
 
-app.UseMiddleware<RequestTimingMiddleware>();
-app.UseHttpsRedirection();
 
+app.UseHttpsRedirection();
+app.UseCors("policy");
 app.UseAuthorization();
 
 app.MapControllers();

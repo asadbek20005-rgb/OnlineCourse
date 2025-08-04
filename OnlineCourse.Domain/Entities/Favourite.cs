@@ -9,7 +9,7 @@ public class Favourite : Base
     [Column("user_id")]
     [Required]
     public Guid UserID { get; set; }
-    [ForeignKey(nameof(UserID))]
+    //[ForeignKey(nameof(UserID))]
     public virtual User? User { get; set; }
 
     [Column("course_id")]
