@@ -7,7 +7,7 @@ using OnlineCourse.Application.Validators.Favourite;
 using OnlineCourse.Application.Validators.Instructor;
 using OnlineCourse.Application.Validators.Lesson;
 using OnlineCourse.Application.Validators.Level;
-using OnlineCourse.Application.Validators.Log;
+using OnlineCourse.Application.Validators.LogValidators;
 using OnlineCourse.Application.Validators.Notification;
 using OnlineCourse.Application.Validators.Payment;
 using OnlineCourse.Application.Validators.RefreshToken;

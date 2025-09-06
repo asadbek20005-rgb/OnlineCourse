@@ -2,7 +2,7 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourse.Application.Dtos;
-using OnlineCourse.Application.Models.Log;
+using OnlineCourse.Application.Models.LogModels;
 using OnlineCourse.Application.RepositoryContracts;
 using OnlineCourse.Domain.Entities;
 using StatusGeneric;

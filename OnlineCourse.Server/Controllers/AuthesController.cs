@@ -8,8 +8,7 @@ using OnlineCourse.Application.ServiceContracts;
 namespace OnlineCourse.Server.Controllers;
 
 [ApiController]
-[Route("api/v{version:apiVersion}/[controller]")]
-[Asp.Versioning.ApiVersion("1.0")]
+[Route("api/[controller]")]
 public class AuthesController(IAuthService authService, IUserService userService) : ControllerBase
 {
     private readonly IAuthService _authService = authService;

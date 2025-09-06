@@ -1,5 +1,6 @@
 using OnlineCourse.Application.Dtos;
 using OnlineCourse.Application.Models.Log;
+using OnlineCourse.Application.Models.LogModels;
 using StatusGeneric;
 
 namespace OnlineCourse.Application.ServiceContracts;

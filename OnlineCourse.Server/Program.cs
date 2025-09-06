@@ -49,8 +49,8 @@ builder.Services.AddApiVersioning(options =>
 builder.Services.AddDbContext<OnlineCourseDbContext>(options =>
 {
 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Connection"));
-    //options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    //options.UseSqlServer(builder.Configuration.GetConnectionString("Connection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 });
 
@@ -79,7 +79,7 @@ builder.Services.AddCors(options =>
             p.AllowAnyOrigin();
             p.AllowAnyHeader();
             p.AllowAnyMethod();
-            
+
         });
 
 });
@@ -158,7 +158,7 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<OnlineCourseDbContext>();
     if (dbContext.Database.IsRelational())
     {
-            dbContext.Database.Migrate();
+        dbContext.Database.Migrate();
     }
 }
 // Configure the HTTP request pipeline.
