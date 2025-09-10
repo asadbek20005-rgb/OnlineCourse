@@ -68,22 +68,6 @@ public class UsersController(IUserService userService, IUserHelperService _userH
         return BadRequest(ModelState);
     }
 
-    [Authorize(Roles = "Admin")]
-    [HttpPut("{userId:guid}/role")]
-    public async Task<IActionResult> ChangeRole(Guid userId, UserRole newRole)
-    {
-        await _userService.ChangeRoleAsync(userId, newRole);
-        if (_userService.IsValid)
-        {
-            return Ok("Done");
-        }
-
-        _userService.CopyToModelState(ModelState);
-        return BadRequest(ModelState);
-    }
-
-
-
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{userId:guid}/status")]

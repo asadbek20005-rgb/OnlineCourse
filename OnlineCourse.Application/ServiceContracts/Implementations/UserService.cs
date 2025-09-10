@@ -55,7 +55,7 @@ public class UserService(
             return;
         }
 
-        user.Role = 1;
+        user.Role = newRole;
         await _userRepository.UpdateAsync(user);
         await _userRepository.SaveChangesAsync();
     }
@@ -324,4 +324,8 @@ public class UserService(
         return (fileName, contentType, size, data);
     }
 
+    public Task<UserDto?> GetUserProfileAsync(Guid userId)
+    {
+        throw new NotImplementedException();
+    }
 }
