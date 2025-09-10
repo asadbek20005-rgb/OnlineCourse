@@ -6,8 +6,7 @@ using OnlineCourse.Application.ServiceContracts;
 namespace OnlineCourse.Server.Controllers;
 
 [ApiController]
-[Route("api/v{version:apiVersion}/[controller]")]
-[Asp.Versioning.ApiVersion("1.0")]
+[Route("api/[controller]")]
 public class InstructorsController(IInstructorService instructorService) : ControllerBase
 {
     private readonly IInstructorService _instructorService = instructorService;

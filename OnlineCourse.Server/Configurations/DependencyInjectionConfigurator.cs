@@ -31,6 +31,7 @@ public static class DependencyInjectionConfigurator
         services.AddScoped<IRedisService, RedisService>();
         services.AddScoped<IMinioService, MinioService>();
         services.AddScoped<IBlogService, BlogService>();
+        services.AddScoped<IUserHelperService, UserHelperService>();
         return services;
     }
 }

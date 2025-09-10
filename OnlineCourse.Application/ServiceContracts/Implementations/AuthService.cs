@@ -58,6 +58,7 @@ public class AuthService(
                 AddError($"Validation error: {error.ErrorMessage}");
             }
         }
+
         User? user = await _userRepository.GetAll()
             .Where(x => x.Email == model.Email || x.UserName == model.UserName)
             .FirstOrDefaultAsync();
@@ -90,12 +91,8 @@ public class AuthService(
         await _refreshTokenRepository.AddAsync(newRefreshToken);
         await _refreshTokenRepository.SaveChangesAsync();
 
+        return new TokenDto(token, refreshToken);
 
-        return new TokenDto
-        {
-            AccessToken = token,
-            RefreshToken = refreshToken
-        };
 
 
     }
@@ -185,11 +182,7 @@ public class AuthService(
         await _refreshTokenRepository.SaveChangesAsync();
 
 
-        return new TokenDto
-        {
-            AccessToken = accessToken,
-            RefreshToken = token,
-        };
+        return new TokenDto(refreshToken.Token, token);
 
     }
 

@@ -4,12 +4,11 @@ using OnlineCourse.Application.Extensions;
 using OnlineCourse.Application.Models.User;
 using OnlineCourse.Application.ServiceContracts;
 using OnlineCourse.Domain.Entities;
-
 namespace OnlineCourse.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController(IUserService userService) : ControllerBase
+public class UsersController(IUserService userService, IUserHelperService _userHelperService) : ControllerBase
 {
     private readonly IUserService _userService = userService;
 
@@ -115,10 +114,11 @@ public class UsersController(IUserService userService) : ControllerBase
         return BadRequest(ModelState);
     }
 
-    [Authorize(Roles = "Instructor, Student")]
+    [Authorize(Roles = "Instructor, Student, User")]
     [HttpGet("me")]
-    public async Task<IActionResult> GetMyProfile(Guid userId)
+    public async Task<IActionResult> GetMyProfile()
     {
+        var userId = _userHelperService.GetUserId();
         var user = await _userService.GetUserProfileAsync(userId);
 
         if (_userService.IsValid)

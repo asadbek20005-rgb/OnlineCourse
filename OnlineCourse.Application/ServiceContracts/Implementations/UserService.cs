@@ -10,6 +10,7 @@ using OnlineCourse.Application.Models.User;
 using OnlineCourse.Application.RepositoryContracts;
 using OnlineCourse.Domain.Entities;
 using StatusGeneric;
+using UserRole = OnlineCourse.Domain.Entities.UserRole;
 
 namespace OnlineCourse.Application.ServiceContracts.Implementations;
 
@@ -54,7 +55,7 @@ public class UserService(
             return;
         }
 
-        user.Role = newRole;
+        user.Role = 1;
         await _userRepository.UpdateAsync(user);
         await _userRepository.SaveChangesAsync();
     }
@@ -148,18 +149,18 @@ public class UserService(
 
     public async Task<bool> EmailExistAsync(string email)
     {
-        return await (_userRepository.GetAll()).AnyAsync(user => user.Email == email);
+        return await (_userRepository.GetAll().AsNoTracking()).AnyAsync(user => user.Email == email);
     }
 
     public async Task<IEnumerable<UserDto>> GetAllUserAsync()
     {
-        var users = await _userRepository.GetAll().ToListAsync();
+        var users = await _userRepository.GetAll().AsNoTracking().ToListAsync();
         return _mapper.Map<List<UserDto>>(users);
     }
 
     public async Task<UserDto?> GetUserByEmailAsync(string email)
     {
-        User? user = await (_userRepository.GetAll())
+        User? user = await (_userRepository.GetAll().AsNoTracking())
             .Where(user => user.Email == email)
             .SingleOrDefaultAsync();
 
@@ -183,7 +184,7 @@ public class UserService(
         return _mapper.Map<UserDto>(user);
     }
 
-    public async Task<UserDto?> GetUserProfileAsync(Guid userId)
+    public async Task<UserDto?> GettUserProfileAsync(Guid userId)
     {
         User? user = await _userRepository.GetByIdAsync(userId);
 
@@ -198,6 +199,15 @@ public class UserService(
 
     public async Task<string> RegisterAsync(RegisterModel model)
     {
+        await ValidateModel(model);
+        var query = _userRepository.GetAll();
+        await CheckForUniquenes(query, model);
+        string message = await SendSMSCode(model);
+        return message;
+    }
+
+    private async Task ValidateModel(RegisterModel model)
+    {
         var validationResult = await _registerValidator.ValidateAsync(model);
         if (!validationResult.IsValid)
         {
@@ -205,27 +215,13 @@ public class UserService(
             {
                 AddError($"Validation error: {error}");
             }
-            return string.Empty;
+            return;
         }
 
-        var query = _userRepository.GetAll();
+    }
 
-        bool emailExist = await query.AnyAsync(x => x.Email == model.Email);
-
-        if (emailExist)
-        {
-            AddError($"User with email: {model.Email} is already exist");
-            return string.Empty;
-        }
-
-        bool usernameExist = await query.AnyAsync(x => x.UserName == model.UserName);
-
-        if (usernameExist)
-        {
-            AddError($"User with username: {model.UserName} is already exist");
-            return string.Empty;
-        }
-
+    private async Task<string> SendSMSCode(RegisterModel model)
+    {
         var newUser = _mapper.Map<User>(model);
         newUser.PasswordHash = _securityService.HashPassword(newUser, model.Password);
 
@@ -244,6 +240,25 @@ public class UserService(
         };
         await _emailSenderService.SendAsync(senderModel);
         return message;
+    }
+
+    private async Task CheckForUniquenes(IQueryable<User> query, RegisterModel model)
+    {
+        bool emailExist = await query.AnyAsync(x => x.Email == model.Email);
+
+        if (emailExist)
+        {
+            AddError($"User with email: {model.Email} is already exist");
+            return;
+        }
+
+        bool usernameExist = await query.AnyAsync(x => x.UserName == model.UserName);
+
+        if (usernameExist)
+        {
+            AddError($"User with username: {model.UserName} is already exist");
+            return;
+        }
     }
 
     public async Task UnBlockAsync(Guid userId)
@@ -297,8 +312,6 @@ public class UserService(
 
         await _minioService.UploadFileAsync(uploadFileModel);
     }
-
-
     private async Task<(string FileName, string ContentType, long Size, MemoryStream Data)> SaveFileDetails(IFormFile file)
     {
         var fileName = Guid.NewGuid().ToString();
@@ -310,8 +323,5 @@ public class UserService(
 
         return (fileName, contentType, size, data);
     }
-
-
-
 
 }

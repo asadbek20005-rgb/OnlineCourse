@@ -3,14 +3,12 @@ using OnlineCourse.Application.Extensions;
 using OnlineCourse.Application.Models.Course;
 using OnlineCourse.Application.Models.Favourite;
 using OnlineCourse.Application.Models.Pagination;
-using OnlineCourse.Application.Models.Student;
 using OnlineCourse.Application.ServiceContracts;
 
 namespace OnlineCourse.Server.Controllers;
 
-[Route("api/v{version:apiVersion}/Instructors/instructor-id/[controller]")]
+[Route("api/Instructors/instructor-id/[controller]")]
 [ApiController]
-[Asp.Versioning.ApiVersion("1.0")]
 public class CoursesController(
     ICourseService courseService,
     IFavouriteService favouriteService,
@@ -80,7 +78,7 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpGet("/api/v1/Courses/category")]
+    [HttpGet("/api/Courses/category")]
     public async Task<IActionResult> Filter([FromQuery] int categoryId)
     {
         var courses = await _courseService.GetCoursesByCategoryAsync(categoryId);
@@ -92,7 +90,7 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpGet("/api/v1/Courses/rating")]
+    [HttpGet("/api/Courses/rating")]
     public async Task<IActionResult> GetTopRated([FromQuery] int count)
     {
         var courses = await _courseService.GetCoursesTopRatedAsync(count);
@@ -129,7 +127,7 @@ public class CoursesController(
     }
 
 
-    [HttpPost("/api/v1/Users/user-id/Courses/course-id/favorite")]
+    [HttpPost("/api/Users/user-id/Courses/course-id/favorite")]
     public async Task<IActionResult> AddFavourite(AddToFavouriteRequestModel model)
     {
         await _favouriteService.AddToFavouriteAsync(model);
@@ -140,7 +138,7 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpDelete("/api/v1/Users/user-id/Courses/course-id/favorite")]
+    [HttpDelete("/api/Users/user-id/Courses/course-id/favorite")]
     public async Task<IActionResult> DeleteFavorite(int favoriteId)
     {
         await _favouriteService.RemoveFromFavouritesAsync(favoriteId);
@@ -154,7 +152,7 @@ public class CoursesController(
 
 
 
-    [HttpGet("/api/v1/Users/user-id/Courses/favorites")]
+    [HttpGet("/api/Users/user-id/Courses/favorites")]
     public async Task<IActionResult> GetMyFavorites(Guid userId)
     {
         var courses = await _favouriteService.GetByUserAsync(userId);
@@ -167,7 +165,7 @@ public class CoursesController(
     }
 
 
-    [HttpGet("/api/v1/Courses/pagination")]
+    [HttpGet("/api/Courses/pagination")]
     public async Task<IActionResult> GetCoursesPagination([FromQuery] PaginationModel model)
     {
         var courses = await _courseService.GetCoursesByPagination(model);
@@ -179,7 +177,7 @@ public class CoursesController(
         return BadRequest(ModelState);
     }
 
-    [HttpGet("/api/v1/Courses/price")]
+    [HttpGet("/api/Courses/price")]
     public async Task<IActionResult> GetByPrice([FromQuery] GetCoursesByPriceModel model)
     {
         var courses = await _courseService.GetCoursesByPriceAsync(model);
@@ -194,7 +192,7 @@ public class CoursesController(
     }
 
 
-    [HttpGet("/api/v1/Courses/level")]
+    [HttpGet("/api/Courses/level")]
     public async Task<IActionResult> GetByLevel([FromQuery] GetCoursesByLevelModel model)
     {
         var courses = await _courseService.GetCoursesByLevelAsync(model);
@@ -208,7 +206,7 @@ public class CoursesController(
     }
 
 
-    [HttpGet("/api/v1/Categories/category-id/course-count")]
+    [HttpGet("/api/Categories/category-id/course-count")]
     public async Task<IActionResult> GetCourseCount(GetCourseCountByCategoryIdModel model)
     {
         int count = await _courseService.GetCourseCountByCategoryIdAsync(model);
@@ -223,7 +221,7 @@ public class CoursesController(
     }
 
 
-    [HttpGet("/api/v1/Courses/count")]
+    [HttpGet("/api/Courses/count")]
     public async Task<IActionResult> GetCoursesCount()
     {
         int count = await _courseService.GetTotalCourseCountAsync();
@@ -236,7 +234,7 @@ public class CoursesController(
     }
 
 
-    [HttpGet("/api/v1/Courses/published")]
+    [HttpGet("/api/Courses/published")]
     public async Task<IActionResult> GetPulishedCourses()
     {
         var courses = await _courseService.GetPublishedCoursesAsync();

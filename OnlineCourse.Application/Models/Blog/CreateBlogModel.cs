@@ -2,18 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnlineCourse.Application.Models.Blog;
 
-public class CreateBlogModel
-{
-    [MaxLength(100)]
-    [MinLength(3)]
-    [Required]
-    public string Title { get; set; } = string.Empty;
-
-    [MaxLength(250)]
-    [MinLength(10)]
-    public string? Details { get; set; }
-
-    public string? ImgUrl { get; set; }
-    [Required]
-    public Guid UserId { get; set; }
-}
+public record CreateBlogModel(
+    [property: MaxLength(100), MinLength(3), Required] string Title,
+    [property: MaxLength(250), MinLength(10)] string? Details,
+    string? ImgUrl,
+    [property: Required] Guid UserId
+);
